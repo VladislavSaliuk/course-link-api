@@ -1,9 +1,10 @@
-package com.courselink.api.auth;
+package com.courselink.api.service;
 
-import com.courselink.api.entity.Role;
+import com.courselink.api.dto.AuthenticationRequestDTO;
+import com.courselink.api.dto.AuthenticationResponseDTO;
+import com.courselink.api.dto.RegistrationRequestDTO;
 import com.courselink.api.entity.User;
 import com.courselink.api.repository.UserRepository;
-import com.courselink.api.config.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,29 +24,33 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest request) {
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.USER);
+    public AuthenticationResponseDTO register(RegistrationRequestDTO registrationRequestDTO) {
+        User user = User.builder()
+                .username(registrationRequestDTO.getUsername())
+                .email(registrationRequestDTO.getEmail())
+                .password(passwordEncoder.encode(registrationRequestDTO.getPassword()))
+                .firstname(registrationRequestDTO.getFirstname())
+                .lastname(registrationRequestDTO.getLastname())
+                .role(registrationRequestDTO.getRole())
+                .build();
         userRepository.save(user);
         String jwt = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDTO.builder()
                 .token(jwt)
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO authenticationRequestDTO) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
+                        authenticationRequestDTO.getUsername(),
+                        authenticationRequestDTO.getPassword()
                 )
         );
-        User user = userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByUsername(authenticationRequestDTO.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
         String jwt = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDTO.builder()
                 .token(jwt)
                 .build();
     }

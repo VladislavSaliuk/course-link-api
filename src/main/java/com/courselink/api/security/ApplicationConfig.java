@@ -1,4 +1,4 @@
-package com.courselink.api.config;
+package com.courselink.api.security;
 
 import com.courselink.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApplicationConfig {
 
     private final UserRepository userRepository;
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -30,6 +25,12 @@ public class ApplicationConfig {
         daoAuthenticationProvider.setUserDetailsService(userDetailsService());
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User with username: " + username + " not found"));
     }
 
     @Bean

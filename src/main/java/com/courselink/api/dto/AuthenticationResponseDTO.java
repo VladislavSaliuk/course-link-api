@@ -1,4 +1,4 @@
-package com.courselink.api.auth;
+package com.courselink.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequest {
+public class AuthenticationResponseDTO {
 
-    private String username;
-
-    private String password;
+    private String token;
 
 }

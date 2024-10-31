@@ -1,6 +1,7 @@
 package com.courselink.api.entity;
 
 public enum Role {
-    USER,
+    STUDENT,
+    TEACHER,
     ADMIN
 }
