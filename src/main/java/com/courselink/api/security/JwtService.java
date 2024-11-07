@@ -1,4 +1,4 @@
-package com.courselink.api.service;
+package com.courselink.api.security;
 
 
 import io.jsonwebtoken.Claims;

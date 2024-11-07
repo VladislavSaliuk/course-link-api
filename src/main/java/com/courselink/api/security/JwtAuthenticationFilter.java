@@ -1,6 +1,5 @@
 package com.courselink.api.security;
 
-import com.courselink.api.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
