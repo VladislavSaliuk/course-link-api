@@ -25,6 +25,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -69,12 +71,30 @@ public class AuthenticationRestControllerIntegrationTest {
                 .role(Role.TEACHER)
                 .build();
 
-        authenticationRequestDTO = new AuthenticationRequestDTO();
-
+        authenticationRequestDTO = AuthenticationRequestDTO
+                .builder()
+                .username(username)
+                .password(password)
+                .build();
     }
 
-    @Test
-    void register_shouldReturnCreatedStatus_whenValidData() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Password1!",
+            "Test@1234",
+            "Secure#2023",
+            "MyPass$wor0d",
+            "Qwerty@123",
+            "Hello!2021",
+            "Java8*Rocks",
+            "GoLang#2022",
+            "Code@1234!",
+            "Test_Pass1"
+    })
+    void register_shouldReturnCreatedStatus_whenValidData(String password) throws Exception {
+
+        registrationRequestDTO.setPassword(password);
+
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
@@ -148,8 +168,9 @@ public class AuthenticationRestControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User should contains role"));
+                .andExpect(jsonPath("$.message").value("User should contains a role"));
     }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "alice.johnson", "bob.smith", "charlie.brown", "david.williams",
@@ -198,17 +219,29 @@ public class AuthenticationRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.message").value("Username should have at least 8 characters!"));
     }
 
-    @Test
-    void register_shouldReturnUnprocessableEntityStatus_whenPasswordDoesNotMeetCriteria() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "1234",
+            "password",
+            "PASSWORD",
+            "Password",
+            "Password1",
+            "password1!",
+            "PASSWORD1!"
+    })
+    void register_shouldReturnUnprocessableEntityStatus_whenPasswordDoesntMeetCriteria(String password) throws Exception {
 
-        registrationRequestDTO.setPassword("1234");
+        registrationRequestDTO.setPassword(password);
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
-                .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."));
+                .andExpect(status().isUnprocessableEntity()).andExpect(jsonPath("$.message", anyOf(
+                        is("Password should have at least 8 characters!"),
+                        is("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.")
+                )));
     }
+
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -219,12 +252,11 @@ public class AuthenticationRestControllerIntegrationTest {
     void authenticate_shouldReturnOkStatus_whenValidData(String username) throws Exception {
 
         authenticationRequestDTO.setUsername(username);
-        authenticationRequestDTO.setPassword("Krimkodeks1_");
 
         mockMvc.perform(post("/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authenticationRequestDTO)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").isNotEmpty());
     }
 
@@ -246,9 +278,8 @@ public class AuthenticationRestControllerIntegrationTest {
             "eva.jones", "frank.miller", "grace.wilson", "hannah.moore",
             "ivy.taylor", "jake.anderson"
     })
-    void authenticate_shouldReturnUnprocessableEntityStatus_whenMissingPassword(String username) throws Exception {
+    void authenticate_shouldReturnUnprocessableEntityStatus_whenMissingPassword() throws Exception {
 
-        authenticationRequestDTO.setUsername(username);
         authenticationRequestDTO.setPassword(null);
 
         mockMvc.perform(post("/auth/authenticate")
@@ -258,15 +289,8 @@ public class AuthenticationRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.message").value("User should contains a password!"));
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "alice.johnson", "bob.smith", "charlie.brown", "david.williams",
-            "eva.jones", "frank.miller", "grace.wilson", "hannah.moore",
-            "ivy.taylor", "jake.anderson"
-    })
-    void authenticate_shouldReturnUnprocessableEntityStatus_whenUsernameNotFound(String username) throws Exception {
-
-        authenticationRequestDTO.setUsername(username);
+    @Test
+    void authenticate_shouldReturnUnprocessableEntityStatus_whenUsernameNotFound() throws Exception {
 
         mockMvc.perform(post("/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -292,7 +316,7 @@ public class AuthenticationRestControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authenticationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("Your password is incorrect!"));
+                .andExpect(jsonPath("$.message").value("Invalid password!"));
     }
 
 }

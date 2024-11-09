@@ -20,7 +20,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Documented
 @Constraint(validatedBy = UserRoleValidator.class)
-public @interface UserRoleSubsetValidation {
+public @interface AuthorityValidation {
     Role[] anyOf();
     String message() default "must be any of {anyOf}";
     Class<?>[] groups() default {};

@@ -6,17 +6,29 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.Arrays;
 
-public class UserRoleValidator implements ConstraintValidator<UserRoleSubsetValidation, Role> {
+public class UserRoleValidator implements ConstraintValidator<AuthorityValidation, Role> {
 
     private Role[] roles;
 
     @Override
-    public void initialize(UserRoleSubsetValidation constraintAnnotation) {
+    public void initialize(AuthorityValidation constraintAnnotation) {
         this.roles = constraintAnnotation.anyOf();
     }
 
     @Override
     public boolean isValid(Role role, ConstraintValidatorContext constraintValidatorContext) {
-        return role == null || Arrays.asList(roles).contains(role);
+        if (role == null) {
+            return true;
+        }
+
+        boolean valid = Arrays.asList(roles).contains(role);
+
+        if (!valid) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("This role doesn't exist!")
+                    .addConstraintViolation();
+        }
+
+        return valid;
     }
 }

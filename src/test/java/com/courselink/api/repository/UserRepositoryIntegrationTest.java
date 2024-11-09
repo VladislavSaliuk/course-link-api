@@ -174,20 +174,5 @@ public class UserRepositoryIntegrationTest {
         assertFalse(isUserExists);
     }
 
-    @Test
-    void existsByPassword_shouldReturnTrue() {
-        String password = "$2a$12$ytUr46U5SKoJr13c.KjcnOebxoKP.O/9cRTj9Y/kyZ2oJ7MfSYWm2";
-        boolean isUserExists = userRepository.existsByPassword(password);
-        assertTrue(isUserExists);
-    }
-
-    @Test
-    void existsByPassword_shouldReturnFalse_whenUserNotFound() {
-        String password = "$2a$12$vG4sk7AbtoBNI7TC.YGnj.BjRqxzMXo4iuY9FNRxTnXY3heRGhB4a";
-        boolean isUserExists = userRepository.existsByPassword(password);
-        assertFalse(isUserExists);
-    }
-
-
 
 }

@@ -2,7 +2,9 @@ package com.courselink.api.dto;
 
 
 import com.courselink.api.entity.Role;
-import com.courselink.api.validation.UserRoleSubsetValidation;
+import com.courselink.api.validation.AuthorityValidation;
+import com.courselink.api.validation.RoleDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -27,7 +29,7 @@ public class RegistrationRequestDTO {
 
     @NotNull(message = "User should contains a password!")
     @Size(min = 8, message = "Password should have at least 8 characters!")
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+    @Pattern(regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}$",
             message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.")
     private String password;
 
@@ -37,8 +39,9 @@ public class RegistrationRequestDTO {
     @NotNull(message = "User should contains a lastname!")
     private String lastname;
 
-    @NotNull(message = "User should contains role")
-    @UserRoleSubsetValidation(anyOf = {Role.STUDENT, Role.TEACHER}, message = "This role doesnt exists!")
+    @NotNull(message = "User should contains a role")
+    @JsonDeserialize(using = RoleDeserializer.class)
+    @AuthorityValidation(anyOf = {Role.STUDENT, Role.TEACHER}, message = "This is not allowed!")
     private Role role;
 
 }
