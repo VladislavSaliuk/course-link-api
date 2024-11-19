@@ -1,4 +1,4 @@
-package com.courselink.api.security;
+package com.courselink.api.config;
 
 import com.courselink.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +42,11 @@ public class ApplicationConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
     }
 
 }

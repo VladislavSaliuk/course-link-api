@@ -5,7 +5,6 @@ import com.courselink.api.dto.AuthenticationRequestDTO;
 import com.courselink.api.dto.RegistrationRequestDTO;
 import com.courselink.api.entity.Role;
 import com.courselink.api.entity.User;
-import com.courselink.api.service.AuthenticationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
@@ -95,7 +93,7 @@ public class AuthenticationRestControllerIntegrationTest {
 
         registrationRequestDTO.setPassword(password);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isCreated())
@@ -107,7 +105,7 @@ public class AuthenticationRestControllerIntegrationTest {
 
         registrationRequestDTO.setUsername(null);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
@@ -118,7 +116,7 @@ public class AuthenticationRestControllerIntegrationTest {
     void register_shouldReturnUnprocessableEntityStatus_whenMissingEmail() throws Exception {
         registrationRequestDTO.setEmail(null);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
@@ -129,7 +127,7 @@ public class AuthenticationRestControllerIntegrationTest {
     void register_shouldReturnUnprocessableEntityStatus_whenMissingPassword() throws Exception {
         registrationRequestDTO.setPassword(null);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
@@ -140,7 +138,7 @@ public class AuthenticationRestControllerIntegrationTest {
     void register_shouldReturnUnprocessableEntityStatus_whenMissingFirstname() throws Exception {
         registrationRequestDTO.setFirstname(null);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
@@ -151,7 +149,7 @@ public class AuthenticationRestControllerIntegrationTest {
     void register_shouldReturnUnprocessableEntityStatus_whenMissingLastname() throws Exception {
         registrationRequestDTO.setLastname(null);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
@@ -164,7 +162,7 @@ public class AuthenticationRestControllerIntegrationTest {
 
         registrationRequestDTO.setRole(null);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
@@ -181,11 +179,11 @@ public class AuthenticationRestControllerIntegrationTest {
 
         registrationRequestDTO.setUsername(username);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User with "  + username + " username is already exists!"));
+                .andExpect(jsonPath("$.message").value("User with username "  + username + " already exists!"));
     }
 
     @ParameterizedTest
@@ -200,11 +198,11 @@ public class AuthenticationRestControllerIntegrationTest {
 
         registrationRequestDTO.setEmail(email);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User with " +  email  + " email is already exists!"));
+                .andExpect(jsonPath("$.message").value("User with email " + registrationRequestDTO.getEmail() + " already exists!"));
     }
 
     @Test
@@ -212,7 +210,7 @@ public class AuthenticationRestControllerIntegrationTest {
 
         registrationRequestDTO.setUsername("1");
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
@@ -233,7 +231,7 @@ public class AuthenticationRestControllerIntegrationTest {
 
         registrationRequestDTO.setPassword(password);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity()).andExpect(jsonPath("$.message", anyOf(
@@ -253,7 +251,7 @@ public class AuthenticationRestControllerIntegrationTest {
 
         authenticationRequestDTO.setUsername(username);
 
-        mockMvc.perform(post("/auth/authenticate")
+        mockMvc.perform(post("/api/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authenticationRequestDTO)))
                 .andExpect(status().isOk())
@@ -265,7 +263,7 @@ public class AuthenticationRestControllerIntegrationTest {
 
         authenticationRequestDTO.setUsername(null);
 
-        mockMvc.perform(post("/auth/authenticate")
+        mockMvc.perform(post("/api/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authenticationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
@@ -282,7 +280,7 @@ public class AuthenticationRestControllerIntegrationTest {
 
         authenticationRequestDTO.setPassword(null);
 
-        mockMvc.perform(post("/auth/authenticate")
+        mockMvc.perform(post("/api/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authenticationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
@@ -292,11 +290,11 @@ public class AuthenticationRestControllerIntegrationTest {
     @Test
     void authenticate_shouldReturnUnprocessableEntityStatus_whenUsernameNotFound() throws Exception {
 
-        mockMvc.perform(post("/auth/authenticate")
+        mockMvc.perform(post("/api/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User not found!"));
+                .andExpect(jsonPath("$.message").value("User not found with username: " + authenticationRequestDTO.getUsername()));
     }
 
     @ParameterizedTest
@@ -312,11 +310,11 @@ public class AuthenticationRestControllerIntegrationTest {
         authenticationRequestDTO.setUsername(username);
         authenticationRequestDTO.setPassword(password);
 
-        mockMvc.perform(post("/auth/authenticate")
+        mockMvc.perform(post("/api/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authenticationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("Invalid password!"));
+                .andExpect(jsonPath("$.message").value("Invalid password for user: " + username));
     }
 
 }

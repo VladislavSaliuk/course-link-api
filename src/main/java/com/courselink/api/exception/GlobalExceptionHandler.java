@@ -28,6 +28,30 @@ public class GlobalExceptionHandler {
 
         return new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), defaultMessage);
     }
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(TaskCategoryNotFoundException.class)
+    public ApiError handleTaskCategoryNotFoundException(TaskCategoryNotFoundException e) {
+        return new ApiError(HttpStatus.NOT_FOUND.value(), e.getMessage());
+    }
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(TaskCategoryException.class)
+    public ApiError handleTaskCategoryException(TaskCategoryException e) {
+        return new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage());
+    }
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(DefenceSessionNotFoundException.class)
+    public ApiError handleDefenceSessionNotFoundException(DefenceSessionNotFoundException e) {
+        return new ApiError(HttpStatus.NOT_FOUND.value(), e.getMessage());
+    }
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(DefenceSessionException.class)
+    public ApiError handleDefenceSessionException(DefenceSessionException e) {
+        return new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage());
+    }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
