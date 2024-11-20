@@ -118,7 +118,21 @@ public class UserRepositoryIntegrationTest {
         assertThrows(DataIntegrityViolationException.class, () -> userRepository.save(user));
     }
 
-    @ParameterizedTest()
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    void findById_shouldReturnUser(long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        assertTrue(optionalUser.isPresent());
+    }
+
+    @Test
+    void findById_shouldThrowException_whenUserNotFound() {
+        long userId = 100L;
+        Optional<User> optionalUser = userRepository.findById(userId);
+        assertTrue(optionalUser.isEmpty());
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = {
             "alice.johnson", "bob.smith", "charlie.brown", "david.williams",
             "eva.jones", "frank.miller", "grace.wilson", "hannah.moore",

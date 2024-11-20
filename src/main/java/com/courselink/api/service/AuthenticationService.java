@@ -3,6 +3,7 @@ package com.courselink.api.service;
 import com.courselink.api.dto.AuthenticationRequestDTO;
 import com.courselink.api.dto.AuthenticationResponseDTO;
 import com.courselink.api.dto.RegistrationRequestDTO;
+import com.courselink.api.entity.Status;
 import com.courselink.api.entity.User;
 import com.courselink.api.repository.UserRepository;
 import com.courselink.api.security.JwtService;
@@ -48,6 +49,7 @@ public class AuthenticationService {
                 .firstname(registrationRequestDTO.getFirstname())
                 .lastname(registrationRequestDTO.getLastname())
                 .role(registrationRequestDTO.getRole())
+                .status(Status.ACTIVE)
                 .build();
 
         userRepository.save(user);
@@ -70,6 +72,10 @@ public class AuthenticationService {
                     log.error(errorMsg);
                     return new UsernameNotFoundException(errorMsg);
                 });
+
+        if (user.getStatus() == Status.BANNED) {
+            throw new BadCredentialsException("You are banned!");
+        }
 
         if (!passwordEncoder.matches(authenticationRequestDTO.getPassword(), user.getPassword())) {
             String errorMsg = "Invalid password for user: " + authenticationRequestDTO.getUsername();

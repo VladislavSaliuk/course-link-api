@@ -66,6 +66,12 @@ public class GlobalExceptionHandler {
     public ApiError handleUsernameNotFoundException(UsernameNotFoundException e) {
         return new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage());
     }
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(UserNotFoundException.class)
+    public ApiError handleUserNotFoundException(UserNotFoundException e) {
+        return new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage());
+    }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)

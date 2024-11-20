@@ -28,8 +28,9 @@ public class SecurityConfig {
                         .csrf(AbstractHttpConfigurer::disable)
                         .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/task-categories/**").hasAuthority("TEACHER")
-                .requestMatchers("/api/defence-sessions/**").hasAuthority("TEACHER")
+                .requestMatchers("/api/task-categories/**").hasAnyAuthority("TEACHER", "ADMIN_TEACHER")
+                .requestMatchers("/api/defence-sessions/**").hasAnyAuthority("TEACHER", "ADMIN_TEACHER")
+                .requestMatchers("/api/users/**").hasAnyAuthority("ADMIN", "ADMIN_TEACHER", "ADMIN_STUDENT")
                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
