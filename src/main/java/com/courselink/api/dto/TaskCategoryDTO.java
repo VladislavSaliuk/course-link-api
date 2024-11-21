@@ -1,13 +1,15 @@
 package com.courselink.api.dto;
 
+import com.courselink.api.entity.TaskCategory;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
+@Data
 @Getter
 @Setter
-@ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TaskCategoryDTO {
 
     private long taskCategoryId;
@@ -15,5 +17,11 @@ public class TaskCategoryDTO {
     @NotNull(message = "Task category should contains name!")
     private String taskCategoryName;
 
+    public static TaskCategoryDTO toTaskCategoryDTO(TaskCategory taskCategory) {
+        return TaskCategoryDTO.builder()
+                .taskCategoryId(taskCategory.getTaskCategoryId())
+                .taskCategoryName(taskCategory.getTaskCategoryName())
+                .build();
+    }
 
 }

@@ -3,14 +3,12 @@ package com.courselink.api.service;
 import com.courselink.api.dto.UpdateRoleDTO;
 import com.courselink.api.dto.UpdateStatusDTO;
 import com.courselink.api.dto.UserDTO;
-import com.courselink.api.entity.Status;
 import com.courselink.api.entity.User;
 import com.courselink.api.exception.UserNotFoundException;
 import com.courselink.api.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

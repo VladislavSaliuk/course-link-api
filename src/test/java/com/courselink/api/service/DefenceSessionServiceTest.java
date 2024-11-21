@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -29,8 +28,6 @@ public class DefenceSessionServiceTest {
     DefenceSessionService defenceSessionService;
     @Mock
     DefenceSessionRepository defenceSessionRepository;
-    @Mock
-    ModelMapper modelMapper;
     DefenceSession defenceSession;
     DefenceSessionDTO defenceSessionDTO;
 
@@ -75,22 +72,14 @@ public class DefenceSessionServiceTest {
     @Test
     void createDefenceSession_shouldReturnDefenceSessionDTO() {
 
-        when(modelMapper.map(defenceSessionDTO, DefenceSession.class))
-                .thenReturn(defenceSession);
-
-        when(modelMapper.map(defenceSession, DefenceSessionDTO.class))
-                .thenReturn(defenceSessionDTO);
-
-        when(defenceSessionRepository.save(defenceSession)).thenReturn(defenceSession);
+        when(defenceSessionRepository.save(any(DefenceSession.class))).thenReturn(defenceSession);
 
         DefenceSessionDTO actualDefenceSessionDTO = defenceSessionService.createDefenceSession(defenceSessionDTO);
 
         assertNotNull(actualDefenceSessionDTO);
         assertEquals(defenceSessionDTO, actualDefenceSessionDTO);
 
-        verify(modelMapper).map(defenceSessionDTO, DefenceSession.class);
-        verify(modelMapper).map(defenceSession, DefenceSessionDTO.class);
-        verify(defenceSessionRepository).save(defenceSession);
+        verify(defenceSessionRepository).save(any(DefenceSession.class));
 
     }
 
@@ -105,7 +94,6 @@ public class DefenceSessionServiceTest {
         assertEquals("Start time can not be greater than end time!", exception.getMessage());
 
         verify(defenceSessionRepository, never()).save(defenceSession);
-        verify(modelMapper, never()).map(defenceSessionDTO, DefenceSession.class);
 
     }
 
@@ -116,16 +104,12 @@ public class DefenceSessionServiceTest {
 
         when(defenceSessionRepository.findById(defenceSession.getDefenceSessionId())).thenReturn(Optional.of(defenceSession));
 
-        when(modelMapper.map(defenceSession, DefenceSessionDTO.class))
-                .thenReturn(defenceSessionDTO);
-
         DefenceSessionDTO updatedDefenceSessionDTO = defenceSessionService.updateDefenceSession(defenceSessionDTO);
 
         assertNotNull(updatedDefenceSessionDTO);
         assertEquals(defenceSessionDTO, updatedDefenceSessionDTO);
 
         verify(defenceSessionRepository).findById(defenceSession.getDefenceSessionId());
-        verify(modelMapper).map(defenceSession, DefenceSessionDTO.class);
 
     }
 
@@ -142,7 +126,6 @@ public class DefenceSessionServiceTest {
         assertEquals("Start time can not be greater than end time!", exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSession.getDefenceSessionId());
-        verify(modelMapper, never()).map(defenceSession, DefenceSessionDTO.class);
 
     }
 
@@ -157,7 +140,6 @@ public class DefenceSessionServiceTest {
 
         verify(defenceSessionRepository).findById(defenceSession.getDefenceSessionId());
         verify(defenceSessionRepository, never()).save(defenceSession);
-        verify(modelMapper, never()).map(defenceSession, DefenceSessionDTO.class);
 
     }
 
@@ -166,9 +148,6 @@ public class DefenceSessionServiceTest {
 
         when(defenceSessionRepository.findAll()).thenReturn(List.of(defenceSession));
 
-        when(modelMapper.map(defenceSession, DefenceSessionDTO.class))
-                .thenReturn(defenceSessionDTO);
-
         List<DefenceSessionDTO> actualDefenceSessionDTOList = defenceSessionService.getAll();
 
         assertFalse(actualDefenceSessionDTOList.isEmpty());
@@ -176,8 +155,6 @@ public class DefenceSessionServiceTest {
         assertEquals(List.of(defenceSessionDTO), actualDefenceSessionDTOList);
 
         verify(defenceSessionRepository).findAll();
-        verify(modelMapper).map(defenceSession, DefenceSessionDTO.class);
-
     }
 
     @Test
@@ -187,16 +164,12 @@ public class DefenceSessionServiceTest {
 
         when(defenceSessionRepository.findById(defenceSessionId)).thenReturn(Optional.of(defenceSession));
 
-        when(modelMapper.map(defenceSession, DefenceSessionDTO.class))
-                .thenReturn(defenceSessionDTO);
-
         DefenceSessionDTO actualDefenceSessionDTO = defenceSessionService.getById(defenceSessionId);
 
         assertNotNull(actualDefenceSessionDTO);
         assertEquals(defenceSessionDTO, actualDefenceSessionDTO);
 
         verify(defenceSessionRepository).findById(defenceSessionId);
-        verify(modelMapper).map(defenceSession, DefenceSessionDTO.class);
 
     }
 
@@ -211,7 +184,6 @@ public class DefenceSessionServiceTest {
         assertEquals("Defence session with " + defenceSessionId + " Id doesn't exist!", exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSessionId);
-        verify(modelMapper, never()).map(defenceSession, DefenceSessionDTO.class);
     }
 
     @Test

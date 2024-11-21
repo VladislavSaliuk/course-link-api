@@ -8,7 +8,6 @@ import com.courselink.api.repository.DefenceSessionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -22,8 +21,6 @@ public class DefenceSessionService {
 
     private final DefenceSessionRepository defenceSessionRepository;
 
-    private final ModelMapper modelMapper;
-
     public DefenceSessionDTO createDefenceSession(DefenceSessionDTO defenceSessionDTO) {
         log.info("Creating DefenceSession: {}", defenceSessionDTO);
 
@@ -35,11 +32,10 @@ public class DefenceSessionService {
             throw new DefenceSessionException("Start time can not be greater than end time!");
         }
 
-        DefenceSession defenceSession = modelMapper.map(defenceSessionDTO, DefenceSession.class);
-        DefenceSession savedSession = defenceSessionRepository.save(defenceSession);
-        log.info("Created DefenceSession with ID: {}", savedSession.getDefenceSessionId());
+        DefenceSession defenceSession = defenceSessionRepository.save(DefenceSession.toDefenceSession(defenceSessionDTO));
+        log.info("Created DefenceSession with ID: {}", defenceSession.getDefenceSessionId());
 
-        return modelMapper.map(savedSession, DefenceSessionDTO.class);
+        return DefenceSessionDTO.toDefenceSessionDTO(defenceSession);
     }
 
     @Transactional
@@ -65,25 +61,25 @@ public class DefenceSessionService {
 
         log.info("Updated DefenceSession with ID: {}", updatedDefenceSession.getDefenceSessionId());
 
-        return modelMapper.map(updatedDefenceSession, DefenceSessionDTO.class);
+        return DefenceSessionDTO.toDefenceSessionDTO(updatedDefenceSession);
     }
 
     public List<DefenceSessionDTO> getAll() {
         log.info("Fetching all DefenceSessions");
 
-        List<DefenceSessionDTO> sessions = defenceSessionRepository.findAll()
-                .stream().map(defenceSession -> modelMapper.map(defenceSession, DefenceSessionDTO.class))
+        List<DefenceSessionDTO> defenceSessions = defenceSessionRepository.findAll()
+                .stream().map(defenceSession -> DefenceSessionDTO.toDefenceSessionDTO(defenceSession))
                 .collect(Collectors.toList());
 
-        log.info("Fetched {} DefenceSessions", sessions.size());
-        return sessions;
+        log.info("Fetched {} DefenceSessions", defenceSessions.size());
+        return defenceSessions;
     }
 
     public DefenceSessionDTO getById(long defenceSessionId) {
         log.info("Fetching DefenceSession with ID: {}", defenceSessionId);
 
         DefenceSessionDTO session = defenceSessionRepository.findById(defenceSessionId)
-                .map(defenceSession -> modelMapper.map(defenceSession, DefenceSessionDTO.class))
+                .map(defenceSession -> DefenceSessionDTO.toDefenceSessionDTO(defenceSession))
                 .orElseThrow(() -> {
                     log.warn("Defence session with ID {} not found", defenceSessionId);
                     return new DefenceSessionNotFoundException("Defence session with " + defenceSessionId + " Id doesn't exist!");

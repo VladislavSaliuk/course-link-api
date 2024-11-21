@@ -1,6 +1,7 @@
 package com.courselink.api.dto;
 
 
+import com.courselink.api.entity.DefenceSession;
 import com.courselink.api.entity.TaskCategory;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -8,12 +9,12 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@Data
 @Getter
 @Setter
 @Builder
-@ToString
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class DefenceSessionDTO {
 
     private long defenceSessionId;
@@ -34,5 +35,18 @@ public class DefenceSessionDTO {
 
     @NotNull(message = "Defence session should contains task category!")
     private TaskCategory taskCategory;
+
+    public static DefenceSessionDTO toDefenceSessionDTO(DefenceSession defenceSession) {
+        return DefenceSessionDTO.builder()
+                .defenceSessionId(defenceSession.getDefenceSessionId())
+                .description(defenceSession.getDescription())
+                .defenseDate(defenceSession.getDefenseDate())
+                .startTime(defenceSession.getStartTime())
+                .endTime(defenceSession.getEndTime())
+                .breakDuration(defenceSession.getBreakDuration())
+                .taskCategory(defenceSession.getTaskCategory())
+                .build();
+    }
+
 
 }

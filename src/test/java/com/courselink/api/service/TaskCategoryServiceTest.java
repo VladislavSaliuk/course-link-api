@@ -12,26 +12,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskCategoryServiceTest {
     @InjectMocks
     TaskCategoryService taskCategoryService;
-    @Mock
-    ModelMapper modelMapper;
     @Mock
     TaskCategoryRepository taskCategoryRepository;
     TaskCategory taskCategory;
@@ -51,13 +42,7 @@ public class TaskCategoryServiceTest {
         when(taskCategoryRepository.existsByTaskCategoryName(taskCategoryDTO.getTaskCategoryName()))
                 .thenReturn(false);
 
-        when(modelMapper.map(taskCategoryDTO, TaskCategory.class))
-                .thenReturn(taskCategory);
-
-        when(modelMapper.map(taskCategory, TaskCategoryDTO.class))
-                .thenReturn(taskCategoryDTO);
-
-        when(taskCategoryRepository.save(taskCategory))
+        when(taskCategoryRepository.save(any(TaskCategory.class)))
                 .thenReturn(taskCategory);
 
         TaskCategoryDTO actualTaskCategoryDTO = taskCategoryService.createTaskCategory(taskCategoryDTO);
@@ -66,9 +51,7 @@ public class TaskCategoryServiceTest {
         assertEquals(taskCategoryDTO, actualTaskCategoryDTO);
 
         verify(taskCategoryRepository).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
-        verify(modelMapper).map(taskCategoryDTO, TaskCategory.class);
-        verify(modelMapper).map(taskCategory, TaskCategoryDTO.class);
-        verify(taskCategoryRepository).save(taskCategory);
+        verify(taskCategoryRepository).save(any(TaskCategory.class));
 
     }
 
@@ -83,8 +66,6 @@ public class TaskCategoryServiceTest {
         assertEquals("Task category with " + taskCategoryDTO.getTaskCategoryName() + " name already exists!", exception.getMessage());
 
         verify(taskCategoryRepository).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
-        verify(modelMapper, never()).map(taskCategoryDTO, TaskCategory.class);
-        verify(modelMapper, never()).map(taskCategory, TaskCategoryDTO.class);
         verify(taskCategoryRepository, never()).save(taskCategory);
 
     }
@@ -100,9 +81,6 @@ public class TaskCategoryServiceTest {
         when(taskCategoryRepository.existsByTaskCategoryName(taskCategoryDTO.getTaskCategoryName()))
                 .thenReturn(false);
 
-        when(modelMapper.map(taskCategory, TaskCategoryDTO.class))
-                .thenReturn(taskCategoryDTO);
-
         TaskCategoryDTO actualTaskCategoryDTO = taskCategoryService.updateTaskCategory(taskCategoryDTO);
 
         assertNotNull(actualTaskCategoryDTO);
@@ -111,8 +89,6 @@ public class TaskCategoryServiceTest {
 
         verify(taskCategoryRepository).findById(taskCategory.getTaskCategoryId());
         verify(taskCategoryRepository).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
-        verify(modelMapper).map(taskCategory, TaskCategoryDTO.class);
-
     }
 
     @Test
@@ -127,8 +103,6 @@ public class TaskCategoryServiceTest {
 
         verify(taskCategoryRepository).findById(taskCategory.getTaskCategoryId());
         verify(taskCategoryRepository, never()).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
-        verify(modelMapper, never()).map(taskCategory, TaskCategoryDTO.class);
-
     }
 
     @Test
@@ -146,7 +120,6 @@ public class TaskCategoryServiceTest {
 
         verify(taskCategoryRepository).findById(taskCategory.getTaskCategoryId());
         verify(taskCategoryRepository).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
-        verify(modelMapper, never()).map(taskCategory, TaskCategoryDTO.class);
 
     }
 
@@ -156,9 +129,6 @@ public class TaskCategoryServiceTest {
         when(taskCategoryRepository.findAll())
                 .thenReturn(List.of(taskCategory));
 
-        when(modelMapper.map(taskCategory, TaskCategoryDTO.class))
-                .thenReturn(taskCategoryDTO);
-
         List<TaskCategoryDTO> actualTaskCategoryDTOList = taskCategoryService.getAll();
 
         assertFalse(actualTaskCategoryDTOList.isEmpty());
@@ -166,7 +136,6 @@ public class TaskCategoryServiceTest {
         assertEquals(List.of(taskCategoryDTO), actualTaskCategoryDTOList);
 
         verify(taskCategoryRepository).findAll();
-        verify(modelMapper).map(taskCategory, TaskCategoryDTO.class);
 
     }
 
@@ -178,16 +147,12 @@ public class TaskCategoryServiceTest {
         when(taskCategoryRepository.findById(taskCategoryId))
                 .thenReturn(Optional.of(taskCategory));
 
-        when(modelMapper.map(taskCategory, TaskCategoryDTO.class))
-                .thenReturn(taskCategoryDTO);
-
         TaskCategoryDTO actualTaskCategoryDTO = taskCategoryService.getById(taskCategoryId);
 
         assertNotNull(actualTaskCategoryDTO);
         assertEquals(taskCategoryDTO, actualTaskCategoryDTO);
 
         verify(taskCategoryRepository).findById(taskCategoryId);
-        verify(modelMapper).map(taskCategory, TaskCategoryDTO.class);
 
     }
 
@@ -204,8 +169,6 @@ public class TaskCategoryServiceTest {
         assertEquals("Task category with " + taskCategoryId + " Id doesn't exist!", exception.getMessage());
 
         verify(taskCategoryRepository).findById(taskCategoryId);
-        verify(modelMapper, never()).map(taskCategory, TaskCategoryDTO.class);
-
     }
 
     @Test

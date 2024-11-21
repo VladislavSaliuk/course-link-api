@@ -8,7 +8,6 @@ import com.courselink.api.repository.TaskCategoryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +20,6 @@ public class TaskCategoryService {
 
     private final TaskCategoryRepository taskCategoryRepository;
 
-    private final ModelMapper modelMapper;
-
     public TaskCategoryDTO createTaskCategory(TaskCategoryDTO taskCategoryDTO) {
         log.info("Creating TaskCategory: {}", taskCategoryDTO);
 
@@ -31,11 +28,10 @@ public class TaskCategoryService {
             throw new TaskCategoryException("Task category with " + taskCategoryDTO.getTaskCategoryName() + " name already exists!");
         }
 
-        TaskCategory taskCategory = modelMapper.map(taskCategoryDTO, TaskCategory.class);
-        TaskCategory savedTaskCategory = taskCategoryRepository.save(taskCategory);
-        log.info("Created TaskCategory with ID: {}", savedTaskCategory.getTaskCategoryId());
+        TaskCategory taskCategory = taskCategoryRepository.save(TaskCategory.toTaskCategory(taskCategoryDTO));
+        log.info("Created TaskCategory with ID: {}", taskCategory.getTaskCategoryId());
 
-        return modelMapper.map(savedTaskCategory, TaskCategoryDTO.class);
+        return TaskCategoryDTO.toTaskCategoryDTO(taskCategory);
     }
 
     @Transactional
@@ -56,14 +52,14 @@ public class TaskCategoryService {
         updatedTaskCategory.setTaskCategoryName(taskCategoryDTO.getTaskCategoryName());
         log.info("Updated TaskCategory with ID: {}", updatedTaskCategory.getTaskCategoryId());
 
-        return modelMapper.map(updatedTaskCategory, TaskCategoryDTO.class);
+        return TaskCategoryDTO.toTaskCategoryDTO(updatedTaskCategory);
     }
 
     public List<TaskCategoryDTO> getAll() {
         log.info("Fetching all TaskCategories");
 
         List<TaskCategoryDTO> taskCategories = taskCategoryRepository.findAll()
-                .stream().map(taskCategory -> modelMapper.map(taskCategory, TaskCategoryDTO.class))
+                .stream().map(taskCategory -> TaskCategoryDTO.toTaskCategoryDTO(taskCategory))
                 .collect(Collectors.toList());
 
         log.info("Fetched {} TaskCategories", taskCategories.size());
@@ -74,7 +70,7 @@ public class TaskCategoryService {
         log.info("Fetching TaskCategory with ID: {}", taskCategoryId);
 
         return taskCategoryRepository.findById(taskCategoryId)
-                .map(taskCategory -> modelMapper.map(taskCategory, TaskCategoryDTO.class))
+                .map(taskCategory -> TaskCategoryDTO.toTaskCategoryDTO(taskCategory))
                 .orElseThrow(() -> {
                     log.warn("TaskCategory with ID {} not found", taskCategoryId);
                     return new TaskCategoryNotFoundException("Task category with " + taskCategoryId + " Id doesn't exist!");

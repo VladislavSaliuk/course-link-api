@@ -1,20 +1,17 @@
 package com.courselink.api.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.courselink.api.dto.TaskCategoryDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "task_categories")
@@ -37,6 +34,13 @@ public class TaskCategory {
 
     public TaskCategory(String taskCategoryName) {
         this.taskCategoryName = taskCategoryName;
+    }
+
+    public static TaskCategory toTaskCategory(TaskCategoryDTO taskCategoryDTO) {
+        return TaskCategory.builder()
+                .taskCategoryId(taskCategoryDTO.getTaskCategoryId())
+                .taskCategoryName(taskCategoryDTO.getTaskCategoryName())
+                .build();
     }
 
 }
