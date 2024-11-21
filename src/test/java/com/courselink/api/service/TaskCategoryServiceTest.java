@@ -107,6 +107,7 @@ public class TaskCategoryServiceTest {
 
         assertNotNull(actualTaskCategoryDTO);
         assertEquals(taskCategoryDTO, actualTaskCategoryDTO);
+        assertEquals(taskCategoryDTO.getTaskCategoryName(), actualTaskCategoryDTO.getTaskCategoryName());
 
         verify(taskCategoryRepository).findById(taskCategory.getTaskCategoryId());
         verify(taskCategoryRepository).existsByTaskCategoryName(taskCategory.getTaskCategoryName());

@@ -3,6 +3,7 @@ package com.courselink.api.service;
 import com.courselink.api.dto.UpdateRoleDTO;
 import com.courselink.api.dto.UpdateStatusDTO;
 import com.courselink.api.dto.UserDTO;
+import com.courselink.api.entity.Status;
 import com.courselink.api.entity.User;
 import com.courselink.api.exception.UserNotFoundException;
 import com.courselink.api.repository.UserRepository;
@@ -21,15 +22,12 @@ import java.util.stream.Collectors;
 public class AdminService {
 
     private final UserRepository userRepository;
-
-    private final ModelMapper modelMapper;
-
     public List<UserDTO> getAll() {
 
         log.info("Fetching all Users");
 
         List<UserDTO> users = userRepository.findAll()
-                .stream().map(user -> modelMapper.map(user, UserDTO.class))
+                .stream().map(user -> UserDTO.toUserDTO(user))
                 .collect(Collectors.toList());
 
         log.info("Fetched {} Users", users.size());
@@ -48,7 +46,9 @@ public class AdminService {
 
         log.info("Updated User with ID: {}", updateStatusDTO.getUserId());
 
-        return modelMapper.map(user, UserDTO.class);
+        log.info(user.getStatus().name());
+
+        return UserDTO.toUserDTO(user);
     }
 
     @Transactional
@@ -62,7 +62,7 @@ public class AdminService {
 
         log.info("Updated User with ID: {}", updateRoleDTO.getUserId());
 
-        return modelMapper.map(user, UserDTO.class);
+        return UserDTO.toUserDTO(user);
     }
 
 }

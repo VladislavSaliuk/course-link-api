@@ -2,6 +2,7 @@ package com.courselink.api.dto;
 
 import com.courselink.api.entity.Role;
 import com.courselink.api.entity.Status;
+import com.courselink.api.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,4 +34,16 @@ public class UserDTO {
 
     private Status status;
 
+    public static UserDTO toUserDTO(User user) {
+        return UserDTO.builder()
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .role(user.getRole())
+                .status(user.getStatus())
+                .build();
+    }
 }

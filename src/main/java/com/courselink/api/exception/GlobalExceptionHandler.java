@@ -67,10 +67,10 @@ public class GlobalExceptionHandler {
         return new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage());
     }
     @ResponseBody
-    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(UserNotFoundException.class)
     public ApiError handleUserNotFoundException(UserNotFoundException e) {
-        return new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage());
+        return new ApiError(HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
 
     @ResponseBody

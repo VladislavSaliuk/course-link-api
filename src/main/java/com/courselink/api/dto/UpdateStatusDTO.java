@@ -1,6 +1,8 @@
 package com.courselink.api.dto;
 
 import com.courselink.api.entity.Status;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
