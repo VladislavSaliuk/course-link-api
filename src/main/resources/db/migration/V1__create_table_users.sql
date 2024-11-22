@@ -8,7 +8,7 @@ create table users (
     password varchar(255) not null,
     firstname varchar(255) not null,
     lastname varchar(255) not null,
-    role varchar(255) check (role in ('STUDENT','TEACHER','ADMIN', 'ADMIN_TEACHER', 'ADMIN_STUDENT')),
-    status varchar(255) check (status in ('ACTIVE','BANNED')),
+    role varchar(255) check (role in ('STUDENT','TEACHER','ADMIN', 'ADMIN_TEACHER', 'ADMIN_STUDENT')) not null,
+    status varchar(255) check (status in ('ACTIVE','BANNED')) not null,
     primary key (user_id)
 );

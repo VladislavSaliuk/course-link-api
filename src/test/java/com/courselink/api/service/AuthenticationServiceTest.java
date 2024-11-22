@@ -5,6 +5,7 @@ import com.courselink.api.dto.AuthenticationRequestDTO;
 import com.courselink.api.dto.AuthenticationResponseDTO;
 import com.courselink.api.dto.RegistrationRequestDTO;
 import com.courselink.api.entity.Role;
+import com.courselink.api.entity.Status;
 import com.courselink.api.entity.User;
 import com.courselink.api.repository.UserRepository;
 import com.courselink.api.security.JwtService;
@@ -171,6 +172,22 @@ public class AuthenticationServiceTest {
 
         UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> authenticationService.authenticate(authenticationRequestDTO));
         assertEquals("User not found with username: " + user.getUsername(), exception.getMessage());
+
+        verify(userRepository).findByUsername(authenticationRequestDTO.getUsername());
+        verify(passwordEncoder,never()).matches(authenticationRequestDTO.getPassword(), user.getPassword());
+        verify(passwordEncoder, times(1)).encode(authenticationRequestDTO.getPassword());
+        verify(jwtService, never()).generateToken(user);
+        verify(authenticationManager, never()).authenticate(any(UsernamePasswordAuthenticationToken.class));
+    }
+
+    @Test
+    void authenticate_shouldThrowException_whenUserBanned() {
+        user.setStatus(Status.BANNED);
+
+        when(userRepository.findByUsername(authenticationRequestDTO.getUsername())).thenReturn(Optional.of(user));
+
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> authenticationService.authenticate(authenticationRequestDTO));
+        assertEquals("You are banned!", exception.getMessage());
 
         verify(userRepository).findByUsername(authenticationRequestDTO.getUsername());
         verify(passwordEncoder,never()).matches(authenticationRequestDTO.getPassword(), user.getPassword());

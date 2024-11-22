@@ -26,9 +26,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AdminServiceTest {
+public class UserManagementServiceTest {
     @InjectMocks
-    AdminService adminService;
+    UserManagementService userManagementService;
     @Mock
     UserRepository userRepository;
     UpdateStatusDTO updateStatusDTO;
@@ -73,7 +73,7 @@ public class AdminServiceTest {
         when(userRepository.findAll())
                 .thenReturn(List.of(user));
 
-        List<UserDTO> actualUserDTOList = adminService.getAll();
+        List<UserDTO> actualUserDTOList = userManagementService.getAll();
 
         assertFalse(actualUserDTOList.isEmpty());
         assertEquals(1, actualUserDTOList.size());
@@ -91,7 +91,7 @@ public class AdminServiceTest {
         when(userRepository.findById(updateStatusDTO.getUserId()))
                 .thenReturn(Optional.of(user));
 
-        UserDTO actualUserDTO = adminService.updateStatus(updateStatusDTO);
+        UserDTO actualUserDTO = userManagementService.updateStatus(updateStatusDTO);
 
         assertNotNull(actualUserDTO);
         assertEquals(updateStatusDTO.getStatus(), actualUserDTO.getStatus());
@@ -105,7 +105,7 @@ public class AdminServiceTest {
         when(userRepository.findById(updateStatusDTO.getUserId()))
                 .thenReturn(Optional.empty());
 
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> adminService.updateStatus(updateStatusDTO));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userManagementService.updateStatus(updateStatusDTO));
         assertEquals("User with " + updateStatusDTO.getUserId() + " Id doesn't exist!", exception.getMessage());
 
         verify(userRepository).findById(updateStatusDTO.getUserId());
@@ -121,7 +121,7 @@ public class AdminServiceTest {
         when(userRepository.findById(updateRoleDTO.getUserId()))
                 .thenReturn(Optional.of(user));
 
-        UserDTO actualUserDTO = adminService.updateRole(updateRoleDTO);
+        UserDTO actualUserDTO = userManagementService.updateRole(updateRoleDTO);
 
         assertNotNull(actualUserDTO);
         assertEquals(updateStatusDTO.getStatus(), actualUserDTO.getStatus());
@@ -135,7 +135,7 @@ public class AdminServiceTest {
         when(userRepository.findById(updateRoleDTO.getUserId()))
                 .thenReturn(Optional.empty());
 
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> adminService.updateRole(updateRoleDTO));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userManagementService.updateRole(updateRoleDTO));
         assertEquals("User with " + updateRoleDTO.getUserId() + " Id doesn't exist!", exception.getMessage());
 
         verify(userRepository).findById(updateRoleDTO.getUserId());

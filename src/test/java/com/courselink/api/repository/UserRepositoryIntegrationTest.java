@@ -1,5 +1,7 @@
 package com.courselink.api.repository;
 
+import com.courselink.api.entity.Role;
+import com.courselink.api.entity.Status;
 import com.courselink.api.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +55,8 @@ public class UserRepositoryIntegrationTest {
                 .password(password)
                 .firstname(firstname)
                 .lastname(lastname)
-
+                .role(Role.ADMIN)
+                .status(Status.ACTIVE)
                 .build();
 
     }
