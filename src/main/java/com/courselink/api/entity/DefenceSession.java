@@ -3,13 +3,13 @@ package com.courselink.api.entity;
 import com.courselink.api.dto.DefenceSessionDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 
 @Entity
@@ -47,6 +47,10 @@ public class DefenceSession implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_category_id", nullable = false)
     private TaskCategory taskCategory;
+
+    @JoinColumn(name = "defence_session_id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<BookingSlot> bookingSlots;
 
     public static DefenceSession toDefenceSession(DefenceSessionDTO defenceSessionDTO) {
         return DefenceSession.builder()
