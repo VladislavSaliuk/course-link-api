@@ -1,5 +1,6 @@
 package com.courselink.api.controller;
 
+import com.courselink.api.dto.BookingSlotDTO;
 import com.courselink.api.dto.DefenceSessionDTO;
 import com.courselink.api.service.DefenceSessionService;
 import jakarta.validation.Valid;
@@ -44,6 +45,10 @@ public class DefenceSessionRestController {
     public void removeById(@PathVariable("id") long defenceSessionId) {
         defenceSessionService.removeById(defenceSessionId);
     }
-
+    @PutMapping("/defence-sessions/generate-booking-slots")
+    @ResponseStatus(HttpStatus.OK)
+    public List<BookingSlotDTO> getGeneratedBookingSlots(@RequestParam long defenceSessionId, @RequestParam int bookingSlotsCount) {
+        return defenceSessionService.generateBookingSlots(defenceSessionId, bookingSlotsCount);
+    }
 
 }

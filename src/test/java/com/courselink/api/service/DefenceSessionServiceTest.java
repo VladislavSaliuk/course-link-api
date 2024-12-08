@@ -1,6 +1,8 @@
 package com.courselink.api.service;
 
+import com.courselink.api.dto.BookingSlotDTO;
 import com.courselink.api.dto.DefenceSessionDTO;
+import com.courselink.api.entity.BookingSlot;
 import com.courselink.api.entity.DefenceSession;
 import com.courselink.api.entity.TaskCategory;
 import com.courselink.api.exception.DefenceSessionException;
@@ -9,10 +11,13 @@ import com.courselink.api.repository.DefenceSessionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -41,8 +46,8 @@ public class DefenceSessionServiceTest {
         taskCategory.setTaskCategoryName(taskCategoryName);
 
         LocalDate defenceDate = LocalDate.of(2024, 10, 10);
-        LocalTime startTime = LocalTime.of(12, 0);
-        LocalTime endTime = LocalTime.of(14, 0);
+        LocalTime startTime = LocalTime.of(13, 0);
+        LocalTime endTime = LocalTime.of(13, 30);
         int breakDuration = 15;
 
         long defenceSessionId = 1L;
@@ -210,6 +215,33 @@ public class DefenceSessionServiceTest {
         assertEquals("Defence session with " + defenceSessionId + " Id doesn't exist!", exception.getMessage());
         verify(defenceSessionRepository).existsById(defenceSessionId);
         verify(defenceSessionRepository, never()).deleteById(defenceSessionId);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 5, 10, 20, 30, 2, 15, 90, 50, 120, 100})
+    void generateBookingSlots_shouldReturnBookingSlotsList(int bookingSlotsCount) {
+
+        long defenceSessionId = 1L;
+
+        when(defenceSessionRepository.findById(defenceSessionId)).thenReturn(Optional.of(defenceSession));
+
+        List<BookingSlotDTO> bookingSlots = defenceSessionService.generateBookingSlots(defenceSessionId, bookingSlotsCount);
+
+        bookingSlots.forEach(System.out::println);
+
+        assertEquals(bookingSlots.size(), bookingSlotsCount);
+        assertEquals(bookingSlots.get(0).getStartTime(), defenceSession.getStartTime());
+
+        Duration duration = Duration.between(bookingSlots.get(0).getStartTime(), bookingSlots.get(0).getEndTime());
+
+        for(BookingSlotDTO bookingSlotDTO : bookingSlots) {
+            assertEquals(duration, Duration.between(bookingSlotDTO.getStartTime(), bookingSlotDTO.getEndTime()));
+        }
+
+        assertEquals(bookingSlots.get(bookingSlotsCount-1).getEndTime(), defenceSession.getEndTime());
+
+        verify(defenceSessionRepository).findById(defenceSessionId);
+
     }
 
 }
