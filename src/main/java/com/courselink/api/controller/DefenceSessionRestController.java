@@ -45,10 +45,5 @@ public class DefenceSessionRestController {
     public void removeById(@PathVariable("id") long defenceSessionId) {
         defenceSessionService.removeById(defenceSessionId);
     }
-    @PutMapping("/defence-sessions/generate-booking-slots")
-    @ResponseStatus(HttpStatus.OK)
-    public List<BookingSlotDTO> getGeneratedBookingSlots(@RequestParam long defenceSessionId, @RequestParam int bookingSlotsCount) {
-        return defenceSessionService.generateBookingSlots(defenceSessionId, bookingSlotsCount);
-    }
 
 }

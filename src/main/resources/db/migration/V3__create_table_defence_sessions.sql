@@ -7,7 +7,6 @@ create table defence_sessions (
     defense_date date not null,
     start_time time(6) not null,
     end_time time(6) not null,
-    break_duration integer,
     task_category_id bigint not null,
     primary key (defence_session_id)
 );

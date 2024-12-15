@@ -34,4 +34,8 @@ public class BookingSlot implements Serializable {
     @Column(name = "is_booked", nullable = false)
     private boolean isBooked;
 
+    @JoinColumn(name = "defence_session_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private DefenceSession defenceSession;
+
 }

@@ -9,7 +9,6 @@ import lombok.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 
 @Entity
@@ -40,17 +39,10 @@ public class DefenceSession implements Serializable {
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
-    @Column(name = "break_duration")
-    private int breakDuration;
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_category_id", nullable = false)
     private TaskCategory taskCategory;
-
-    @JoinColumn(name = "defence_session_id")
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<BookingSlot> bookingSlots;
 
     public static DefenceSession toDefenceSession(DefenceSessionDTO defenceSessionDTO) {
         return DefenceSession.builder()
@@ -59,7 +51,6 @@ public class DefenceSession implements Serializable {
                 .defenseDate(defenceSessionDTO.getDefenseDate())
                 .startTime(defenceSessionDTO.getStartTime())
                 .endTime(defenceSessionDTO.getEndTime())
-                .breakDuration(defenceSessionDTO.getBreakDuration())
                 .taskCategory(defenceSessionDTO.getTaskCategory())
                 .build();
     }

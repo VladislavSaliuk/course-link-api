@@ -59,14 +59,12 @@ public class DefenceSessionRepositoryIntegrationTest {
         LocalDate defenceDate = LocalDate.of(2025, 1, 1);
         LocalTime startTime = LocalTime.of(14,30);
         LocalTime endTime = LocalTime.of(16, 00);
-        int breakDuration = 5;
 
         defenceSession = DefenceSession.builder()
                 .description(description)
                 .defenseDate(defenceDate)
                 .startTime(startTime)
                 .endTime(endTime)
-                .breakDuration(breakDuration)
                 .taskCategory(taskCategory)
                 .build();
 

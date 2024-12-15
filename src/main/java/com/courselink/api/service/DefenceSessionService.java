@@ -16,7 +16,6 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,6 +24,7 @@ import java.util.stream.Collectors;
 public class DefenceSessionService {
 
     private final DefenceSessionRepository defenceSessionRepository;
+
 
     public DefenceSessionDTO createDefenceSession(DefenceSessionDTO defenceSessionDTO) {
         log.info("Creating DefenceSession: {}", defenceSessionDTO);
@@ -61,7 +61,6 @@ public class DefenceSessionService {
         updatedDefenceSession.setDescription(defenceSessionDTO.getDescription());
         updatedDefenceSession.setStartTime(defenceSessionDTO.getStartTime());
         updatedDefenceSession.setEndTime(defenceSessionDTO.getEndTime());
-        updatedDefenceSession.setBreakDuration(defenceSessionDTO.getBreakDuration());
         updatedDefenceSession.setTaskCategory(defenceSessionDTO.getTaskCategory());
 
         log.info("Updated DefenceSession with ID: {}", updatedDefenceSession.getDefenceSessionId());
@@ -106,62 +105,6 @@ public class DefenceSessionService {
         log.info("Removed DefenceSession with ID: {}", defenceSessionId);
     }
 
-    @Transactional
-    public List<BookingSlotDTO> generateBookingSlots(long defenceSessionId, int bookingSlotsCount) {
-        log.info("Generating booking slots for DefenceSession with ID: {}", defenceSessionId);
 
-        if(bookingSlotsCount == 0) {
-            throw new ArithmeticException("Booking slots count value cannot be 0!");
-        }
-
-        log.info("Fetching DefenceSession with ID: {}", defenceSessionId);
-
-        DefenceSession defenceSession = defenceSessionRepository.findById(defenceSessionId)
-                .orElseThrow(() -> {
-                    log.warn("Defence session with ID {} not found", defenceSessionId);
-                    return new DefenceSessionNotFoundException("Defence session with " + defenceSessionId + " Id doesn't exist!");
-                });
-
-        log.info("Found DefenceSession with ID: {}", defenceSession.getDefenceSessionId());
-        List<BookingSlot> bookingSlotList = new LinkedList<>();
-
-        LocalTime startTime = defenceSession.getStartTime();
-        LocalTime endTime = defenceSession.getEndTime();
-        int breakDuration = defenceSession.getBreakDuration();
-
-        log.info("Start time: {}, End time: {}, Break duration: {}", startTime, endTime, breakDuration);
-
-        Duration defenceSessionDuration = Duration.between(startTime, endTime);
-        log.info("Adjusted session duration (after accounting for breaks): {} minutes", defenceSessionDuration.toMinutes());
-
-        long slotDurationInNanos = defenceSessionDuration.toNanos() / bookingSlotsCount;
-        log.info("Slot duration (in minutes): {}", slotDurationInNanos);
-
-        for (int i = 0; i < bookingSlotsCount; i++) {
-            LocalTime slotStartTime = startTime;
-            LocalTime slotEndTime = startTime.plusNanos(slotDurationInNanos);
-
-            log.info("Slot {}: Start time = {}, End time = {}", i + 1, slotStartTime, slotEndTime);
-
-            BookingSlot bookingSlot = new BookingSlot();
-            bookingSlot.setStartTime(slotStartTime);
-            bookingSlot.setEndTime(slotEndTime);
-            bookingSlot.setBooked(false);
-
-            bookingSlotList.add(bookingSlot);
-            log.info("Booking slot {} added with start time: {} and end time: {}", i + 1, slotStartTime, slotEndTime);
-
-            startTime = startTime.plusNanos(slotDurationInNanos);
-
-        }
-
-        log.info("Generated {} booking slots.", bookingSlotsCount);
-
-        defenceSession.setBookingSlots(bookingSlotList);
-
-        return bookingSlotList.stream()
-                .map(bookingSlot -> BookingSlotDTO.bookingSlotDTO(bookingSlot))
-                .collect(Collectors.toList());
-    }
 
 }

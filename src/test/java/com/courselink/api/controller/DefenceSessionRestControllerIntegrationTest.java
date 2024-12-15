@@ -47,9 +47,6 @@ public class DefenceSessionRestControllerIntegrationTest {
     }
 
     @Autowired
-    DefenceSessionRestController defenceSessionRestController;
-
-    @Autowired
     WebApplicationContext wac;
     MockMvc mockMvc;
 
@@ -70,14 +67,12 @@ public class DefenceSessionRestControllerIntegrationTest {
         LocalDate defenceDate = LocalDate.of(2025, 1, 1);
         LocalTime startTime = LocalTime.of(14,30);
         LocalTime endTime = LocalTime.of(16, 00);
-        int breakDuration = 5;
 
         defenceSessionDTO = DefenceSessionDTO.builder()
                 .description(description)
                 .defenseDate(defenceDate)
                 .startTime(startTime)
                 .endTime(endTime)
-                .breakDuration(breakDuration)
                 .taskCategory(taskCategory)
                 .build();
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
@@ -92,7 +87,7 @@ public class DefenceSessionRestControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.length()").value(7))
+                .andExpect(jsonPath("$.length()").value(6))
                 .andExpect(jsonPath("$.defenceSessionId").value(11L));
 
     }
@@ -211,7 +206,7 @@ public class DefenceSessionRestControllerIntegrationTest {
 
         mockMvc.perform(get("/api/defence-sessions/" + defenceSessionDTO.getDefenceSessionId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(7))
+                .andExpect(jsonPath("$.length()").value(6))
                 .andExpect(jsonPath("$.defenceSessionId").value(1L))
                 .andExpect(jsonPath("$.description").value(updatedDescription));
 
@@ -352,7 +347,7 @@ public class DefenceSessionRestControllerIntegrationTest {
 
         mockMvc.perform(get("/api/defence-sessions/" + defenceSessionId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(7))
+                .andExpect(jsonPath("$.length()").value(6))
                 .andExpect(jsonPath("$.defenceSessionId").value(defenceSessionId));
 
     }

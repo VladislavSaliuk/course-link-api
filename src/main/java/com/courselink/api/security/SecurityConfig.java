@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/task-categories/**").hasAnyAuthority("TEACHER", "ADMIN_TEACHER")
                 .requestMatchers("/api/defence-sessions/**").hasAnyAuthority("TEACHER", "ADMIN_TEACHER")
+                .requestMatchers("/api/booking-slots/generate-booking-slots").hasAnyAuthority("TEACHER", "ADMIN_TEACHER")
                 .requestMatchers("/api/users/**").hasAnyAuthority("ADMIN", "ADMIN_TEACHER", "ADMIN_STUDENT")
                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
