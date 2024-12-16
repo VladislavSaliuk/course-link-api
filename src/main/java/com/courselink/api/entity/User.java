@@ -45,11 +45,6 @@ public class User implements UserDetails, Serializable {
 
     @Enumerated(EnumType.STRING)
     private Status status;
-
-    @JoinColumn(name = "user_id")
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<BookingSlot> bookingSlots;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

@@ -1,20 +1,24 @@
 package com.courselink.api.service;
 
 import com.courselink.api.dto.BookingSlotDTO;
-import com.courselink.api.entity.DefenceSession;
-import com.courselink.api.entity.TaskCategory;
+import com.courselink.api.entity.*;
+import com.courselink.api.exception.BookingSlotNotFoundException;
 import com.courselink.api.exception.DefenceSessionException;
 import com.courselink.api.exception.DefenceSessionNotFoundException;
+import com.courselink.api.exception.UserNotFoundException;
 import com.courselink.api.repository.BookingSlotRepository;
 import com.courselink.api.repository.DefenceSessionRepository;
+import com.courselink.api.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -22,8 +26,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -35,8 +38,12 @@ public class BookingSlotServiceTest {
     BookingSlotRepository bookingSlotRepository;
     @Mock
     DefenceSessionRepository defenceSessionRepository;
-    DefenceSession defenceSession;
+    @Mock
+    UserRepository userRepository;
 
+    DefenceSession defenceSession;
+    BookingSlot bookingSlot;
+    User user;
     @BeforeEach
     void setUp() {
         long taskCategoryId = 1L;
@@ -58,6 +65,15 @@ public class BookingSlotServiceTest {
                 .startTime(startTime)
                 .endTime(endTime)
                 .taskCategory(taskCategory)
+                .build();
+
+
+        bookingSlot = BookingSlot.builder()
+                .isBooked(false)
+                .build();
+
+        user = User.builder()
+                .role(Role.STUDENT)
                 .build();
 
     }
@@ -135,6 +151,118 @@ public class BookingSlotServiceTest {
         verify(defenceSessionRepository).findById(defenceSessionId);
         verify(bookingSlotRepository).existsByDefenceSession_DefenceSessionId(defenceSessionId);
         verify(bookingSlotRepository, never()).saveAll(any());
+
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Role.class, names = {"ADMIN_STUDENT", "STUDENT"})
+    void chooseBookingSlot_shouldReturnBookingSlotDTO(Role role) {
+
+        long userId = 1L;
+        long bookingSlotId = 1L;
+
+        user.setRole(role);
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(user));
+
+        when(bookingSlotRepository.findById(bookingSlotId))
+                .thenReturn(Optional.of(bookingSlot));
+
+        BookingSlotDTO updatedBookingSlotDTO = bookingSlotService.chooseBookingSlot(userId, bookingSlotId);
+
+        assertNotNull(updatedBookingSlotDTO);
+        assertTrue(updatedBookingSlotDTO.isBooked());
+        assertEquals(updatedBookingSlotDTO.getUser(), user);
+
+        verify(userRepository).findById(userId);
+        verify(bookingSlotRepository).findById(bookingSlotId);
+
+    }
+
+    @Test
+    void chooseBookingSlot_shouldThrowException_whenUserNotFound() {
+
+        long userId = 100L;
+        long bookingSlotId = 1L;
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
+
+        assertEquals("User with " + userId + " Id doesn't exist!", exception.getMessage());
+
+        verify(userRepository).findById(userId);
+        verify(bookingSlotRepository,never()).findById(bookingSlotId);
+
+    }
+
+    @Test
+    void chooseBookingSlot_shouldThrowException_whenBookingSlotNotFound() {
+
+        long userId = 1L;
+        long bookingSlotId = 100L;
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(user));
+
+        when(bookingSlotRepository.findById(bookingSlotId))
+                .thenReturn(Optional.empty());
+
+        BookingSlotNotFoundException exception = assertThrows(BookingSlotNotFoundException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
+
+        assertEquals("Booking slot with " + userId + " Id doesn't exist!", exception.getMessage());
+
+        verify(userRepository).findById(userId);
+        verify(bookingSlotRepository).findById(bookingSlotId);
+
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Role.class, names = {"ADMIN_TEACHER", "ADMIN", "TEACHER"})
+    void chooseBookingSlot_shouldThrowException_whenUserIsNotAStudent(Role role) {
+
+        long userId = 1L;
+        long bookingSlotId = 1L;
+
+        user.setRole(role);
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(user));
+
+        when(bookingSlotRepository.findById(bookingSlotId))
+                .thenReturn(Optional.of(bookingSlot));
+
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
+
+        assertEquals("User with " + userId + " Id is not a student!", exception.getMessage());
+
+        verify(userRepository).findById(userId);
+        verify(bookingSlotRepository).findById(bookingSlotId);
+
+    }
+
+    @Test
+    void chooseBookingSlot_shouldThrowException_whenBookingSlotISAlreadyBooked() {
+
+        long userId = 1L;
+        long bookingSlotId = 1L;
+
+        bookingSlot.setBooked(true);
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(user));
+
+        when(bookingSlotRepository.findById(bookingSlotId))
+                .thenReturn(Optional.of(bookingSlot));
+
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
+
+        assertEquals("Booking slot with " + userId + " Id is already booked!", exception.getMessage());
+
+        verify(userRepository).findById(userId);
+        verify(bookingSlotRepository).findById(bookingSlotId);
 
     }
 

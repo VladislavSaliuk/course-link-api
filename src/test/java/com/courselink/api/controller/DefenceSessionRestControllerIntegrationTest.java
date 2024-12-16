@@ -359,6 +359,25 @@ public class DefenceSessionRestControllerIntegrationTest {
 
     }
 
+    @ParameterizedTest
+    @MethodSource("provideLocaleTimesForDefenceSession")
+    void updateDefenceSession_shouldReturnUnprocessableEntity_whenDefenceTimeOverlaps(LocalTime startTime, LocalTime endTime) throws Exception {
+
+        defenceSessionDTO.setDefenceSessionId(1L);
+
+        defenceSessionDTO.setDefenseDate(LocalDate.of(2024, 12,10));
+        defenceSessionDTO.setStartTime(startTime);
+        defenceSessionDTO.setEndTime(endTime);
+
+        mockMvc.perform(put("/api/defence-sessions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(defenceSessionDTO)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.statusCode").value(422))
+                .andExpect(jsonPath("$.message").value("Time conflict: The session overlaps with an existing session on the same day."));
+    }
+
     @Test
     @WithMockUser(username = "teacher", roles = "TEACHER")
     void getAll_shouldReturnOkStatus() throws Exception {

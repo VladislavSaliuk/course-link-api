@@ -60,7 +60,6 @@ public class UserRepositoryIntegrationTest {
                 .build();
 
     }
-
     @Test
     void save_shouldPersistUser() {
         userRepository.save(user);

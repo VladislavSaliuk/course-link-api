@@ -19,6 +19,11 @@ public class BookingSlotsRestController {
     public List<BookingSlotDTO> getGeneratedBookingSlots(@RequestParam long defenceSessionId, @RequestParam int bookingSlotsCount) {
         return bookingSlotService.generateBookingSlots(defenceSessionId, bookingSlotsCount);
     }
+    @PutMapping("/booking-slots/choose-booking-slot")
+    @ResponseStatus(HttpStatus.OK)
+    public BookingSlotDTO chooseBookingSlot(@RequestParam long userId, @RequestParam long bookingSlotId) {
+        return bookingSlotService.chooseBookingSlot(userId, bookingSlotId);
+    }
 
 
 }

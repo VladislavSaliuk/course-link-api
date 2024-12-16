@@ -74,6 +74,13 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(BookingSlotNotFoundException.class)
+    public ApiError handleBookingSlotNotFoundException(BookingSlotNotFoundException e) {
+        return new ApiError(HttpStatus.NOT_FOUND.value(), e.getMessage());
+    }
+
+    @ResponseBody
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(IllegalArgumentException.class)
     public ApiError handleIllegalArgumentException(IllegalArgumentException e) {

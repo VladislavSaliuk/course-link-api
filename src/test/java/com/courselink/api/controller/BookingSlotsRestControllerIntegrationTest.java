@@ -1,9 +1,6 @@
 package com.courselink.api.controller;
 
 
-import com.courselink.api.dto.BookingSlotDTO;
-import com.courselink.api.entity.DefenceSession;
-import com.courselink.api.entity.TaskCategory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,10 +22,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -131,5 +126,79 @@ public class BookingSlotsRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.message").value("Booking slots for DefenceSession with ID " + defenceSessionId + " already exist!"));
 
     }
+
+    @ParameterizedTest
+    @Sql("/sql/insert_booking_slots.sql")
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    @WithMockUser(username = "student", roles = {"STUDENT", "ADMIN_STUDENT"})
+    void chooseBookingSlot_shouldReturnOkStatus(long bookingSlotId) throws Exception {
+
+        long userId = 1L;
+
+        mockMvc.perform(put("/api/booking-slots/choose-booking-slot")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("userId", String.valueOf(userId))
+                        .param("bookingSlotId", String.valueOf(bookingSlotId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(6));
+
+
+    }
+
+    @Test
+    @Sql("/sql/insert_booking_slots.sql")
+    void chooseBookingSlot_shouldReturnNotFoundStatus_whenUserNotFound() throws Exception {
+
+        long userId = 100L;
+        long bookingSlotId = 1L;
+
+        mockMvc.perform(put("/api/booking-slots/choose-booking-slot")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("userId", String.valueOf(userId))
+                        .param("bookingSlotId", String.valueOf(bookingSlotId)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.statusCode").value(404))
+                .andExpect(jsonPath("$.message").value("User with " + userId + " Id doesn't exist!"));
+
+
+    }
+
+    @Test
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql",  "/sql/insert_defence_sessions.sql", "/sql/insert_booking_slots.sql"})
+    void chooseBookingSlot_shouldReturnNotFoundStatus_whenBookingSlotNotFound() throws Exception {
+
+        long userId = 1L;
+        long bookingSlotId = 1000L;
+
+        mockMvc.perform(put("/api/booking-slots/choose-booking-slot")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("userId", String.valueOf(userId))
+                        .param("bookingSlotId", String.valueOf(bookingSlotId)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.statusCode").value(404))
+                .andExpect(jsonPath("$.message").value("Booking slot with " + userId + " Id doesn't exist!"));
+
+    }
+
+    @ParameterizedTest
+    @Sql("/sql/insert_booking_slots.sql")
+    @ValueSource(longs = {4L, 5L, 6L, 8L, 10L})
+    void chooseBookingSlot_shouldUnprocessableEntity_UserIsNotAStudent(long userId) throws Exception {
+
+        long bookingSlotId = 1L;
+
+        mockMvc.perform(put("/api/booking-slots/choose-booking-slot")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("userId", String.valueOf(userId))
+                        .param("bookingSlotId", String.valueOf(bookingSlotId)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.statusCode").value(422))
+                .andExpect(jsonPath("$.message").value("User with " + userId + " Id is not a student!"));
+
+    }
+
 
 }

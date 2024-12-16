@@ -2,6 +2,7 @@ package com.courselink.api.dto;
 
 import com.courselink.api.entity.BookingSlot;
 import com.courselink.api.entity.DefenceSession;
+import com.courselink.api.entity.User;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -26,6 +27,8 @@ public class BookingSlotDTO {
 
     private boolean isBooked;
 
+    private User user;
+
     @NotNull(message = "Defence session should contains end time!")
     private DefenceSession defenceSession;
 
@@ -34,6 +37,7 @@ public class BookingSlotDTO {
                 .bookingSlotId(bookingSlot.getBookingSlotId())
                 .startTime(bookingSlot.getStartTime())
                 .endTime(bookingSlot.getEndTime())
+                .user(bookingSlot.getUser())
                 .isBooked(bookingSlot.isBooked())
                 .defenceSession(bookingSlot.getDefenceSession())
                 .build();

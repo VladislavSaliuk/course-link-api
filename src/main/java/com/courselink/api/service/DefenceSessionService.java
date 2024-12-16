@@ -60,8 +60,11 @@ public class DefenceSessionService {
     public DefenceSessionDTO updateDefenceSession(DefenceSessionDTO defenceSessionDTO) {
         log.info("Updating DefenceSession with ID: {}", defenceSessionDTO.getDefenceSessionId());
 
+        LocalDate defenceDate = defenceSessionDTO.getDefenseDate();
         LocalTime startTime = defenceSessionDTO.getStartTime();
         LocalTime endTime = defenceSessionDTO.getEndTime();
+
+        List<DefenceSessionDTO> defenceSessionDTOList = getAll();
 
         DefenceSession updatedDefenceSession = defenceSessionRepository.findById(defenceSessionDTO.getDefenceSessionId())
                 .orElseThrow(() -> new DefenceSessionNotFoundException("Defence session with " + defenceSessionDTO.getDefenceSessionId() + " Id doesn't exist!"));
@@ -69,6 +72,15 @@ public class DefenceSessionService {
         if (startTime.compareTo(endTime) > 0) {
             log.error("Start time {} is greater than end time {}", startTime, endTime);
             throw new DefenceSessionException("Start time can not be greater than end time!");
+        }
+
+        for (DefenceSessionDTO currentDefenceSessionDTO : defenceSessionDTOList) {
+            if (defenceDate.compareTo(currentDefenceSessionDTO.getDefenseDate()) == 0) {
+                if ((startTime.isBefore(currentDefenceSessionDTO.getEndTime()) && endTime.isAfter(currentDefenceSessionDTO.getStartTime()))) {
+                    log.error("Time conflict detected: new session overlaps with an existing session on {}", defenceDate);
+                    throw new DefenceSessionException("Time conflict: The session overlaps with an existing session on the same day.");
+                }
+            }
         }
 
         updatedDefenceSession.setDescription(defenceSessionDTO.getDescription());
