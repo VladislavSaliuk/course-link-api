@@ -3,10 +3,13 @@ package com.courselink.api.controller;
 
 import com.courselink.api.dto.DefenceSessionDTO;
 import com.courselink.api.entity.TaskCategory;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,6 +29,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -78,6 +82,14 @@ public class DefenceSessionRestControllerIntegrationTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
+    private static Stream<Arguments> provideLocaleTimesForDefenceSession() {
+        return Stream.of(
+                Arguments.of(LocalTime.of(10, 0), LocalTime.of(10, 30)),
+                Arguments.of(LocalTime.of(9,30), LocalTime.of(10, 15)),
+                Arguments.of(LocalTime.of(10,15), LocalTime.of(10, 45)),
+                Arguments.of(LocalTime.of(10,5), LocalTime.of(10,15))
+        );
+    }
 
     @Test
     @WithMockUser(username = "teacher", roles = "TEACHER")
@@ -188,6 +200,23 @@ public class DefenceSessionRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.statusCode").value(422))
                 .andExpect(jsonPath("$.message").value("Start time can not be greater than end time!"));
 
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideLocaleTimesForDefenceSession")
+    void createDefenceSession_shouldReturnUnprocessableEntity_whenDefenceTimeOverlaps(LocalTime startTime, LocalTime endTime) throws Exception {
+
+        defenceSessionDTO.setDefenseDate(LocalDate.of(2024, 12,10));
+        defenceSessionDTO.setStartTime(startTime);
+        defenceSessionDTO.setEndTime(endTime);
+
+        mockMvc.perform(post("/api/defence-sessions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(defenceSessionDTO)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.statusCode").value(422))
+                .andExpect(jsonPath("$.message").value("Time conflict: The session overlaps with an existing session on the same day."));
     }
 
     @Test

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,12 +30,24 @@ public class DefenceSessionService {
     public DefenceSessionDTO createDefenceSession(DefenceSessionDTO defenceSessionDTO) {
         log.info("Creating DefenceSession: {}", defenceSessionDTO);
 
+        LocalDate defenceDate = defenceSessionDTO.getDefenseDate();
         LocalTime startTime = defenceSessionDTO.getStartTime();
         LocalTime endTime = defenceSessionDTO.getEndTime();
+
+        List<DefenceSessionDTO> defenceSessionDTOList = getAll();
 
         if (startTime.compareTo(endTime) > 0) {
             log.error("Start time {} is greater than end time {}", startTime, endTime);
             throw new DefenceSessionException("Start time can not be greater than end time!");
+        }
+
+        for (DefenceSessionDTO currentDefenceSessionDTO : defenceSessionDTOList) {
+            if (defenceDate.compareTo(currentDefenceSessionDTO.getDefenseDate()) == 0) {
+                if ((startTime.isBefore(currentDefenceSessionDTO.getEndTime()) && endTime.isAfter(currentDefenceSessionDTO.getStartTime()))) {
+                    log.error("Time conflict detected: new session overlaps with an existing session on {}", defenceDate);
+                    throw new DefenceSessionException("Time conflict: The session overlaps with an existing session on the same day.");
+                }
+            }
         }
 
         DefenceSession defenceSession = defenceSessionRepository.save(DefenceSession.toDefenceSession(defenceSessionDTO));
@@ -104,7 +117,6 @@ public class DefenceSessionService {
         defenceSessionRepository.deleteById(defenceSessionId);
         log.info("Removed DefenceSession with ID: {}", defenceSessionId);
     }
-
 
 
 }
