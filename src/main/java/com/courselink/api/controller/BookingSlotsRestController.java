@@ -24,6 +24,16 @@ public class BookingSlotsRestController {
     public BookingSlotDTO chooseBookingSlot(@RequestParam long userId, @RequestParam long bookingSlotId) {
         return bookingSlotService.chooseBookingSlot(userId, bookingSlotId);
     }
+    @DeleteMapping("/booking-slots/delete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeByDefenceSessionId(@RequestParam long defenceSessionId) {
+        bookingSlotService.removeBookingSlotByDefenceSessionId(defenceSessionId);
+    }
 
+    @GetMapping("/booking-slots")
+    @ResponseStatus(HttpStatus.OK)
+    public List<BookingSlotDTO> getAllByDefenceSessionId(@RequestParam long defenceSessionId) {
+        return bookingSlotService.getAllByDefenceSessionId(defenceSessionId);
+    }
 
 }

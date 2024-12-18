@@ -22,15 +22,14 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Testcontainers
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql",  "/sql/insert_defence_sessions.sql"})
+@Sql(scripts = {"/sql/drop_data.sql"})
 public class BookingSlotsRestControllerIntegrationTest {
     @Container
     private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
@@ -54,14 +53,15 @@ public class BookingSlotsRestControllerIntegrationTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 5, 10, 20, 30, 2, 15, 90, 50, 120, 1000})
     @WithMockUser(username = "teacher", roles = {"TEACHER", "ADMIN_TEACHER"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql",  "/sql/insert_defence_sessions.sql"})
     void generateBookingSlots_shouldReturnCreatedStatus(int bookingSlotsCount) throws Exception {
 
         long defenceSessionId = 1L;
 
         mockMvc.perform(post("/api/booking-slots/generate-booking-slots")
-                .contentType(MediaType.APPLICATION_JSON)
-                .param("defenceSessionId", String.valueOf(defenceSessionId))
-                .param("bookingSlotsCount", String.valueOf(bookingSlotsCount)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("defenceSessionId", String.valueOf(defenceSessionId))
+                        .param("bookingSlotsCount", String.valueOf(bookingSlotsCount)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.length()").value(bookingSlotsCount));
 
@@ -69,6 +69,7 @@ public class BookingSlotsRestControllerIntegrationTest {
     @ParameterizedTest
     @ValueSource(ints = {0, -1})
     @WithMockUser(username = "teacher", roles = {"TEACHER", "ADMIN_TEACHER"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql",  "/sql/insert_defence_sessions.sql"})
     void generateBookingSlots_shouldReturnUnprocessableEntityStatus_whenBookingSlotsCountIsLessThenZeroOrEquals(int bookingSlotsCount) throws Exception {
 
         long defenceSessionId = 1L;
@@ -86,6 +87,7 @@ public class BookingSlotsRestControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "teacher", roles = {"TEACHER", "ADMIN_TEACHER"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql",  "/sql/insert_defence_sessions.sql"})
     void generateBookingSlots_shouldReturnNotFoundStatus_whenDefenceSessionNotFound() throws Exception {
 
         long defenceSessionId = 100L;
@@ -105,6 +107,7 @@ public class BookingSlotsRestControllerIntegrationTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 5, 10, 20, 30, 2, 15, 90, 50, 120, 1000})
     @WithMockUser(username = "teacher", roles = {"TEACHER", "ADMIN_TEACHER"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql",  "/sql/insert_defence_sessions.sql"})
     void generateBookingSlots_shouldReturnUnprocessableEntityStatus_whenDefenceSessionIdIsAlreadyExists(int bookingSlotsCount) throws Exception {
 
         long defenceSessionId = 1L;
@@ -128,9 +131,9 @@ public class BookingSlotsRestControllerIntegrationTest {
     }
 
     @ParameterizedTest
-    @Sql("/sql/insert_booking_slots.sql")
     @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
     @WithMockUser(username = "student", roles = {"STUDENT", "ADMIN_STUDENT"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql",  "/sql/insert_defence_sessions.sql", "/sql/insert_booking_slots.sql"})
     void chooseBookingSlot_shouldReturnOkStatus(long bookingSlotId) throws Exception {
 
         long userId = 1L;
@@ -147,6 +150,8 @@ public class BookingSlotsRestControllerIntegrationTest {
 
     @Test
     @Sql("/sql/insert_booking_slots.sql")
+    @WithMockUser(username = "student", roles = {"STUDENT", "ADMIN_STUDENT"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql", "/sql/insert_defence_sessions.sql", "/sql/insert_booking_slots.sql"})
     void chooseBookingSlot_shouldReturnNotFoundStatus_whenUserNotFound() throws Exception {
 
         long userId = 100L;
@@ -164,12 +169,13 @@ public class BookingSlotsRestControllerIntegrationTest {
 
     }
 
-    @Test
-    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql",  "/sql/insert_defence_sessions.sql", "/sql/insert_booking_slots.sql"})
-    void chooseBookingSlot_shouldReturnNotFoundStatus_whenBookingSlotNotFound() throws Exception {
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    @WithMockUser(username = "student", roles = {"STUDENT", "ADMIN_STUDENT"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql", "/sql/insert_defence_sessions.sql"})
+    void chooseBookingSlot_shouldReturnNotFoundStatus_whenBookingSlotNotFound(long bookingSlotId) throws Exception {
 
         long userId = 1L;
-        long bookingSlotId = 1000L;
 
         mockMvc.perform(put("/api/booking-slots/choose-booking-slot")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -183,9 +189,10 @@ public class BookingSlotsRestControllerIntegrationTest {
     }
 
     @ParameterizedTest
-    @Sql("/sql/insert_booking_slots.sql")
     @ValueSource(longs = {4L, 5L, 6L, 8L, 10L})
-    void chooseBookingSlot_shouldUnprocessableEntity_UserIsNotAStudent(long userId) throws Exception {
+    @WithMockUser(username = "student", roles = {"STUDENT", "ADMIN_STUDENT"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql", "/sql/insert_defence_sessions.sql", "/sql/insert_booking_slots.sql"})
+    void chooseBookingSlot_shouldReturnUnprocessableEntity_UserIsNotAStudent(long userId) throws Exception {
 
         long bookingSlotId = 1L;
 
@@ -200,5 +207,62 @@ public class BookingSlotsRestControllerIntegrationTest {
 
     }
 
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    @WithMockUser(username = "teacher", roles = {"TEACHER", "ADMIN_TEACHER"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql", "/sql/insert_defence_sessions.sql", "/sql/insert_booking_slots.sql"})
+    void removeBookingSlotByDefenceSessionId_shouldReturnNoContentStatus(long defenceSessionId) throws Exception {
+
+        mockMvc.perform(delete("/api/booking-slots/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("defenceSessionId", String.valueOf(defenceSessionId)))
+                .andExpect(status().isNoContent());
+
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    @WithMockUser(username = "teacher", roles = {"TEACHER", "ADMIN_TEACHER"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql", "/sql/insert_defence_sessions.sql"})
+    void removeBookingSlotByDefenceSessionId_shouldReturnNotFoundException_whenBookingSlotDoesntExist(long defenceSessionId) throws Exception {
+
+        mockMvc.perform(delete("/api/booking-slots/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("defenceSessionId", String.valueOf(defenceSessionId)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.statusCode").value(404))
+                .andExpect(jsonPath("$.message").value("Booking slot with defence session " + defenceSessionId + " Id doesn't exist!"));
+
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    @WithMockUser(username = "teacher", roles = {"TEACHER", "ADMIN_TEACHER", "STUDENT", "ADMIN_STUDENT"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql", "/sql/insert_defence_sessions.sql", "/sql/insert_booking_slots.sql"})
+    void getAllByDefenceSessionId_shouldReturnOkStatus(long defenceSessionId) throws Exception {
+
+        mockMvc.perform(get("/api/booking-slots")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("defenceSessionId", String.valueOf(defenceSessionId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    @WithMockUser(username = "teacher", roles = {"TEACHER", "ADMIN_TEACHER", "STUDENT", "ADMIN_STUDENT"})
+    @Sql(scripts = {"/sql/drop_data.sql", "/sql/insert_task_categories.sql", "/sql/insert_users.sql", "/sql/insert_defence_sessions.sql"})
+    void getAllByDefenceSessionId_shouldReturnNotFoundStatus_whenBookingSlotsNotFound(long defenceSessionId) throws Exception {
+
+        mockMvc.perform(get("/api/booking-slots")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("defenceSessionId", String.valueOf(defenceSessionId)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.statusCode").value(404))
+                .andExpect(jsonPath("$.message").value("Booking slots with " + defenceSessionId + " defence session Id doesn't exist!"));
+
+    }
 
 }

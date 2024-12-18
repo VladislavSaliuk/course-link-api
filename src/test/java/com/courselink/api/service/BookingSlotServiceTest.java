@@ -23,6 +23,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,6 +70,7 @@ public class BookingSlotServiceTest {
 
 
         bookingSlot = BookingSlot.builder()
+                .defenceSession(defenceSession)
                 .isBooked(false)
                 .build();
 
@@ -173,7 +175,7 @@ public class BookingSlotServiceTest {
 
         assertNotNull(updatedBookingSlotDTO);
         assertTrue(updatedBookingSlotDTO.isBooked());
-        assertEquals(updatedBookingSlotDTO.getUser(), user);
+        assertEquals(updatedBookingSlotDTO.getUserId(), user.getUserId());
 
         verify(userRepository).findById(userId);
         verify(bookingSlotRepository).findById(bookingSlotId);
@@ -265,5 +267,69 @@ public class BookingSlotServiceTest {
         verify(bookingSlotRepository).findById(bookingSlotId);
 
     }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    void removeBookingSlotByDefenceSessionId_shouldDeleteBookingSlot(long defenceSessionId) {
+
+        when(bookingSlotRepository.existsByDefenceSession_DefenceSessionId(defenceSessionId))
+                .thenReturn(true);
+
+        doNothing().when(bookingSlotRepository).deleteByDefenceSession_DefenceSessionId(defenceSessionId);
+
+        bookingSlotService.removeBookingSlotByDefenceSessionId(defenceSessionId);
+
+        verify(bookingSlotRepository).existsByDefenceSession_DefenceSessionId(defenceSessionId);
+        verify(bookingSlotRepository).deleteByDefenceSession_DefenceSessionId(defenceSessionId);
+
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    void removeBookingSlotByDefenceSessionId_shouldNotDeleteBookingSlot_whenBookingSlotDoesntExist(long defenceSessionId) {
+
+        when(bookingSlotRepository.existsByDefenceSession_DefenceSessionId(defenceSessionId))
+                .thenReturn(false);
+
+        BookingSlotNotFoundException exception = assertThrows(BookingSlotNotFoundException.class, () -> bookingSlotService.removeBookingSlotByDefenceSessionId(defenceSessionId));
+        assertEquals("Booking slot with defence session " + defenceSessionId + " Id doesn't exist!", exception.getMessage());
+
+        verify(bookingSlotRepository).existsByDefenceSession_DefenceSessionId(defenceSessionId);
+        verify(bookingSlotRepository, never()).deleteByDefenceSession_DefenceSessionId(defenceSessionId);
+
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    void getAllByDefenceSessionId_shouldReturnBookingSlotDTOList(long defenceSessionId) {
+
+        when(bookingSlotRepository.findAllByDefenceSession_DefenceSessionId(defenceSessionId))
+                .thenReturn(List.of(bookingSlot));
+
+        List<BookingSlotDTO> bookingSlotDTOS = bookingSlotService.getAllByDefenceSessionId(defenceSessionId);
+
+        assertNotNull(bookingSlotDTOS);
+        assertFalse(bookingSlotDTOS.isEmpty());
+        assertEquals(1, bookingSlotDTOS.size());
+
+        verify(bookingSlotRepository).findAllByDefenceSession_DefenceSessionId(defenceSessionId);
+
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    void getAllByDefenceSessionId_shouldThrowException_whenBookingSlotsNotFound(long defenceSessionId) {
+
+        when(bookingSlotRepository.findAllByDefenceSession_DefenceSessionId(defenceSessionId))
+                .thenReturn(Collections.emptyList());
+
+        BookingSlotNotFoundException exception = assertThrows(BookingSlotNotFoundException.class, () -> bookingSlotService.getAllByDefenceSessionId(defenceSessionId));
+        assertEquals("Booking slots with " + defenceSessionId + " defence session Id doesn't exist!", exception.getMessage());
+
+        verify(bookingSlotRepository).findAllByDefenceSession_DefenceSessionId(defenceSessionId);
+
+    }
+
+
 
 }

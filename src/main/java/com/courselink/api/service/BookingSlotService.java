@@ -1,6 +1,7 @@
 package com.courselink.api.service;
 
 import com.courselink.api.dto.BookingSlotDTO;
+import com.courselink.api.dto.DefenceSessionDTO;
 import com.courselink.api.entity.BookingSlot;
 import com.courselink.api.entity.DefenceSession;
 import com.courselink.api.entity.Role;
@@ -95,6 +96,37 @@ public class BookingSlotService {
         return BookingSlotDTO.toBookingSlotDTO(bookingSlot);
     }
 
+    public void removeBookingSlotByDefenceSessionId(long defenceSessionId) {
+
+        log.info("Removing booking slot with defence session ID: {}", defenceSessionId);
+
+        if (!bookingSlotRepository.existsByDefenceSession_DefenceSessionId(defenceSessionId)) {
+            log.warn("Booking slot with defence session ID {} not found", defenceSessionId);
+            throw new BookingSlotNotFoundException("Booking slot with defence session " + defenceSessionId + " Id doesn't exist!");
+        }
+
+        bookingSlotRepository.deleteByDefenceSession_DefenceSessionId(defenceSessionId);
+        log.info("Removed booking slot with defence session ID: {}", defenceSessionId);
+
+    }
+
+    public List<BookingSlotDTO> getAllByDefenceSessionId(long defenceSessionId) {
+        log.info("Fetching Booking slot with defence session ID: {}", defenceSessionId);
+
+        List<BookingSlot> bookingSlots = bookingSlotRepository.findAllByDefenceSession_DefenceSessionId(defenceSessionId);
+
+        if(bookingSlots.isEmpty()) {
+            log.warn("Booking slots with defence session ID {} not found", defenceSessionId);
+            throw new BookingSlotNotFoundException("Booking slots with " + defenceSessionId + " defence session Id doesn't exist!");
+        }
+
+        log.info("Found booking slots with defence session ID: {}", defenceSessionId);
+
+        return bookingSlots.stream()
+                .map(bookingSlot -> BookingSlotDTO.toBookingSlotDTO(bookingSlot))
+                .collect(Collectors.toList());
+    }
+
     private List<BookingSlot> createBookingSlots(DefenceSession defenceSession, int bookingSlotsCount) {
         LocalTime startTime = defenceSession.getStartTime();
         LocalTime endTime = defenceSession.getEndTime();
@@ -121,4 +153,5 @@ public class BookingSlotService {
                 })
                 .collect(Collectors.toList());
     }
+
 }

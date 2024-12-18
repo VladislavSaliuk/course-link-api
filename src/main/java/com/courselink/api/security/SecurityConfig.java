@@ -31,6 +31,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/task-categories/**").hasAnyAuthority("TEACHER", "ADMIN_TEACHER")
                 .requestMatchers("/api/defence-sessions/**").hasAnyAuthority("TEACHER", "ADMIN_TEACHER")
                 .requestMatchers("/api/booking-slots/generate-booking-slots").hasAnyAuthority("TEACHER", "ADMIN_TEACHER")
+                .requestMatchers("/api/booking-slots").hasAnyAuthority("TEACHER", "ADMIN_TEACHER", "STUDENT", "ADMIN_STUDENT")
+                .requestMatchers("/api/booking-slots/generate-booking-slots").hasAnyAuthority("TEACHER", "ADMIN_TEACHER")
                 .requestMatchers("/api/booking-slots/choose-booking-slot").hasAnyAuthority("STUDENT", "ADMIN_STUDENT")
                 .requestMatchers("/api/users/**").hasAnyAuthority("ADMIN", "ADMIN_TEACHER", "ADMIN_STUDENT")
                 .anyRequest().authenticated())

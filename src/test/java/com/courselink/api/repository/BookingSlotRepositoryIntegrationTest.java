@@ -3,6 +3,7 @@ package com.courselink.api.repository;
 import com.courselink.api.entity.BookingSlot;
 import com.courselink.api.entity.DefenceSession;
 import com.courselink.api.entity.TaskCategory;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,6 +23,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -107,6 +109,36 @@ public class BookingSlotRepositoryIntegrationTest {
         long defenceSessionId = 100L;
         boolean isBookingSlotExists = bookingSlotRepository.existsByDefenceSession_DefenceSessionId(defenceSessionId);
         assertFalse(isBookingSlotExists);
+    }
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    void deleteByDefenceSessionId_shouldDeleteBookingSlots(long defenceSessionId) {
+        bookingSlotRepository.deleteByDefenceSession_DefenceSessionId(defenceSessionId);
+        assertEquals(9, bookingSlotRepository.count());
+    }
+    @Test
+    void deleteByDefenceSessionId_shouldNotDeleteBookingSlots_whenInputContainsNotExistingDefenceSessionId() {
+        long defenceSessionId = 100L;
+        bookingSlotRepository.deleteByDefenceSession_DefenceSessionId(defenceSessionId);
+        assertEquals(10, bookingSlotRepository.count());
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
+    void findAllByDefenceSession_DefenceSessionId_shouldReturnBookSlotList(long defenceSessionId) {
+        List<BookingSlot> bookingSlots = bookingSlotRepository.findAllByDefenceSession_DefenceSessionId(defenceSessionId);
+        assertNotNull(bookingSlots);
+        assertFalse(bookingSlots.isEmpty());
+        assertEquals(1, bookingSlots.size());
+    }
+
+    @Test
+    void findAllByDefenceSession_shouldReturnEmptyList_whenInputContainsNotExistingDefenceSessionId() {
+        long defenceSessionId = 100L;
+        List<BookingSlot> bookingSlots = bookingSlotRepository.findAllByDefenceSession_DefenceSessionId(defenceSessionId);
+        assertNotNull(bookingSlots);
+        assertTrue(bookingSlots.isEmpty());
+        assertEquals(0, bookingSlots.size());
     }
 
 }

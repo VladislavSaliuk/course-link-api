@@ -1,11 +1,8 @@
 package com.courselink.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalTime;
@@ -34,10 +31,12 @@ public class BookingSlot implements Serializable {
     @Column(name = "is_booked", nullable = false)
     private boolean isBooked;
 
+    @JsonIgnore
     @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private User user;
 
+    @JsonIgnore
     @JoinColumn(name = "defence_session_id")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private DefenceSession defenceSession;
