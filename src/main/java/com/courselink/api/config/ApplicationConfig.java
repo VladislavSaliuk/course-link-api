@@ -1,6 +1,11 @@
 package com.courselink.api.config;
 
 import com.courselink.api.repository.UserRepository;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +18,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
+
 @Configuration
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
@@ -41,6 +54,16 @@ public class ApplicationConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public OpenAPI openAPI() {
+        return new OpenAPI()
+                .servers(List.of(new Server().url("http://localhost:8080")))
+                .info(new Info()
+                        .title("CourseLink API")
+                        .description("CourseLink API provides a seamless system for managing and booking presentation slots for coursework in the university. With this API, students can view available slots, make reservations, and manage their bookings, while administrators can configure schedules, monitor reservations, and ensure smooth organization of coursework presentations.")
+                        .version("1.0.0"));
     }
 
 
