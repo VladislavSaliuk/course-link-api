@@ -89,7 +89,7 @@ public class AuthenticationRestControllerIntegrationTest {
             "Code@1234!",
             "Test_Pass1"
     })
-    void register_shouldReturnCreatedStatus_whenValidData(String password) throws Exception {
+    void register_shouldReturnCreatedStatus(String password) throws Exception {
 
         registrationRequestDTO.setPassword(password);
 

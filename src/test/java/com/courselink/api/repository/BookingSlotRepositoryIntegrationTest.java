@@ -91,11 +91,6 @@ public class BookingSlotRepositoryIntegrationTest {
     void saveAll_shouldThrowException_whenInputContainsNull() {
         InvalidDataAccessApiUsageException exception = assertThrows(InvalidDataAccessApiUsageException.class, () -> bookingSlotRepository.saveAll(null));
     }
-    @Test
-    void saveAll_shouldThrowException_whenInputContainsBookingSlotWithOutDefenceSession() {
-        bookingSlot.setDefenceSession(null);
-        DataIntegrityViolationException exception = assertThrows(DataIntegrityViolationException.class, () -> bookingSlotRepository.saveAll(List.of(bookingSlot)));
-    }
 
     @ParameterizedTest
     @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})

@@ -7,7 +7,7 @@ create table booking_slots (
     end_time time(6) not null,
     is_booked boolean not null,
     user_id bigint,
-    defence_session_id bigint not null,
+    defence_session_id bigint,
     primary key (booking_slot_id)
 );
 

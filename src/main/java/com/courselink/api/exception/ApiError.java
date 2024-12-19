@@ -14,8 +14,5 @@ public class ApiError {
     private int statusCode;
 
     private String message;
-    public ApiError(String message) {
-        this.message = message;
-    }
 
 }

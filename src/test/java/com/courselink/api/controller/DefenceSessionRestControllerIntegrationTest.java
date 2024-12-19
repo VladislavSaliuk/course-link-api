@@ -203,6 +203,7 @@ public class DefenceSessionRestControllerIntegrationTest {
     }
 
     @ParameterizedTest
+    @WithMockUser(username = "teacher", roles = "TEACHER")
     @MethodSource("provideLocaleTimesForDefenceSession")
     void createDefenceSession_shouldReturnUnprocessableEntity_whenDefenceTimeOverlaps(LocalTime startTime, LocalTime endTime) throws Exception {
 
