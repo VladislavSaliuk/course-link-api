@@ -1,8 +1,6 @@
 package com.courselink.api.service;
 
-import com.courselink.api.dto.BookingSlotDTO;
 import com.courselink.api.dto.DefenceSessionDTO;
-import com.courselink.api.entity.BookingSlot;
 import com.courselink.api.entity.DefenceSession;
 import com.courselink.api.exception.DefenceSessionException;
 import com.courselink.api.exception.DefenceSessionNotFoundException;
@@ -10,12 +8,12 @@ import com.courselink.api.repository.DefenceSessionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +24,7 @@ public class DefenceSessionService {
 
     private final DefenceSessionRepository defenceSessionRepository;
 
+    private final MessageSource messageSource;
 
     public DefenceSessionDTO createDefenceSession(DefenceSessionDTO defenceSessionDTO) {
         log.info("Creating DefenceSession: {}", defenceSessionDTO);
@@ -38,14 +37,16 @@ public class DefenceSessionService {
 
         if (startTime.compareTo(endTime) > 0) {
             log.error("Start time {} is greater than end time {}", startTime, endTime);
-            throw new DefenceSessionException("Start time can not be greater than end time!");
+            String errorMsg = messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, LocaleContextHolder.getLocale());
+            throw new DefenceSessionException(errorMsg);
         }
 
         for (DefenceSessionDTO currentDefenceSessionDTO : defenceSessionDTOList) {
             if (defenceDate.compareTo(currentDefenceSessionDTO.getDefenseDate()) == 0) {
                 if ((startTime.isBefore(currentDefenceSessionDTO.getEndTime()) && endTime.isAfter(currentDefenceSessionDTO.getStartTime()))) {
                     log.error("Time conflict detected: new session overlaps with an existing session on {}", defenceDate);
-                    throw new DefenceSessionException("Time conflict: The session overlaps with an existing session on the same day.");
+                    String errorMsg = messageSource.getMessage("message.defence.session.time.conflict", null, LocaleContextHolder.getLocale());
+                    throw new DefenceSessionException(errorMsg);
                 }
             }
         }
@@ -67,18 +68,24 @@ public class DefenceSessionService {
         List<DefenceSessionDTO> defenceSessionDTOList = getAll();
 
         DefenceSession updatedDefenceSession = defenceSessionRepository.findById(defenceSessionDTO.getDefenceSessionId())
-                .orElseThrow(() -> new DefenceSessionNotFoundException("Defence session with " + defenceSessionDTO.getDefenceSessionId() + " Id doesn't exist!"));
+            .orElseThrow(() -> {
+            log.warn("Defence session with ID {} not found", defenceSessionDTO.getDefenceSessionId());
+            String errorMsg = messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionDTO.getDefenceSessionId()}, LocaleContextHolder.getLocale());
+            return new DefenceSessionNotFoundException(errorMsg);
+        });
 
         if (startTime.compareTo(endTime) > 0) {
             log.error("Start time {} is greater than end time {}", startTime, endTime);
-            throw new DefenceSessionException("Start time can not be greater than end time!");
+            String errorMsg = messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, LocaleContextHolder.getLocale());
+            throw new DefenceSessionException(errorMsg);
         }
 
         for (DefenceSessionDTO currentDefenceSessionDTO : defenceSessionDTOList) {
             if (defenceDate.compareTo(currentDefenceSessionDTO.getDefenseDate()) == 0) {
                 if ((startTime.isBefore(currentDefenceSessionDTO.getEndTime()) && endTime.isAfter(currentDefenceSessionDTO.getStartTime()))) {
                     log.error("Time conflict detected: new session overlaps with an existing session on {}", defenceDate);
-                    throw new DefenceSessionException("Time conflict: The session overlaps with an existing session on the same day.");
+                    String errorMsg = messageSource.getMessage("message.defence.session.time.conflict", null, LocaleContextHolder.getLocale());
+                    throw new DefenceSessionException(errorMsg);
                 }
             }
         }
@@ -111,7 +118,8 @@ public class DefenceSessionService {
                 .map(defenceSession -> DefenceSessionDTO.toDefenceSessionDTO(defenceSession))
                 .orElseThrow(() -> {
                     log.warn("Defence session with ID {} not found", defenceSessionId);
-                    return new DefenceSessionNotFoundException("Defence session with " + defenceSessionId + " Id doesn't exist!");
+                    String errorMsg = messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, LocaleContextHolder.getLocale());
+                    return new DefenceSessionNotFoundException(errorMsg);
                 });
 
         log.info("Found DefenceSession with ID: {}", session.getDefenceSessionId());
@@ -123,7 +131,8 @@ public class DefenceSessionService {
 
         if (!defenceSessionRepository.existsById(defenceSessionId)) {
             log.warn("Defence session with ID {} not found", defenceSessionId);
-            throw new DefenceSessionNotFoundException("Defence session with " + defenceSessionId + " Id doesn't exist!");
+            String errorMsg = messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, LocaleContextHolder.getLocale());
+            throw new DefenceSessionNotFoundException(errorMsg);
         }
 
         defenceSessionRepository.deleteById(defenceSessionId);

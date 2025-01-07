@@ -9,6 +9,8 @@ import com.courselink.api.repository.UserRepository;
 import com.courselink.api.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,18 +28,19 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final MessageSource messageSource;
 
     public AuthenticationResponseDTO register(RegistrationRequestDTO registrationRequestDTO) {
         log.info("Attempting to register user with username: {}", registrationRequestDTO.getUsername());
 
         if (userRepository.existsByUsername(registrationRequestDTO.getUsername())) {
-            String errorMsg = "User with username " + registrationRequestDTO.getUsername() + " already exists!";
+            String errorMsg = messageSource.getMessage("message.user.already.exists.with.username", new Object[]{registrationRequestDTO.getUsername()}, LocaleContextHolder.getLocale());
             log.error(errorMsg);
             throw new BadCredentialsException(errorMsg);
         }
 
         if (userRepository.existsByEmail(registrationRequestDTO.getEmail())) {
-            String errorMsg = "User with email " + registrationRequestDTO.getEmail() + " already exists!";
+            String errorMsg = messageSource.getMessage("message.user.already.exists.with.email", new Object[]{registrationRequestDTO.getEmail()}, LocaleContextHolder.getLocale());
             log.error(errorMsg);
             throw new BadCredentialsException(errorMsg);
         }
@@ -68,17 +71,18 @@ public class AuthenticationService {
 
         User user = userRepository.findByUsername(authenticationRequestDTO.getUsername())
                 .orElseThrow(() -> {
-                    String errorMsg = "User not found with username: " + authenticationRequestDTO.getUsername();
+                    String errorMsg = messageSource.getMessage("message.user.not.found.with.username", new Object[]{authenticationRequestDTO.getUsername()}, LocaleContextHolder.getLocale());
                     log.error(errorMsg);
                     return new UsernameNotFoundException(errorMsg);
                 });
 
         if (user.getStatus() == Status.BANNED) {
-            throw new BadCredentialsException("You are banned!");
+            String errorMsg = messageSource.getMessage("message.user.banned", null, LocaleContextHolder.getLocale());
+            throw new BadCredentialsException(errorMsg);
         }
 
         if (!passwordEncoder.matches(authenticationRequestDTO.getPassword(), user.getPassword())) {
-            String errorMsg = "Invalid password for user: " + authenticationRequestDTO.getUsername();
+            String errorMsg = messageSource.getMessage("message.user.invalid.password", new Object[]{authenticationRequestDTO.getUsername()}, LocaleContextHolder.getLocale());
             log.error(errorMsg);
             throw new BadCredentialsException(errorMsg);
         }

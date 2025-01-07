@@ -11,11 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +31,8 @@ public class DefenceSessionServiceTest {
     DefenceSessionService defenceSessionService;
     @Mock
     DefenceSessionRepository defenceSessionRepository;
+    @Spy
+    MessageSource messageSource;
     DefenceSession defenceSession;
     DefenceSessionDTO defenceSessionDTO;
 
@@ -87,7 +92,7 @@ public class DefenceSessionServiceTest {
 
         DefenceSessionException exception = assertThrows(DefenceSessionException.class, () -> defenceSessionService.createDefenceSession(defenceSessionDTO));
 
-        assertEquals("Start time can not be greater than end time!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, Locale.ENGLISH), exception.getMessage());
 
         verify(defenceSessionRepository, never()).save(defenceSession);
 
@@ -119,7 +124,7 @@ public class DefenceSessionServiceTest {
 
         DefenceSessionException exception = assertThrows(DefenceSessionException.class, () -> defenceSessionService.updateDefenceSession(defenceSessionDTO));
 
-        assertEquals("Start time can not be greater than end time!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, Locale.ENGLISH), exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSession.getDefenceSessionId());
 
@@ -132,7 +137,7 @@ public class DefenceSessionServiceTest {
 
         DefenceSessionNotFoundException exception = assertThrows(DefenceSessionNotFoundException.class, () -> defenceSessionService.updateDefenceSession(defenceSessionDTO));
 
-        assertEquals("Defence session with " + defenceSession.getDefenceSessionId() + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSession.getDefenceSessionId()}, Locale.ENGLISH), exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSession.getDefenceSessionId());
         verify(defenceSessionRepository, never()).save(defenceSession);
@@ -177,7 +182,7 @@ public class DefenceSessionServiceTest {
 
         DefenceSessionNotFoundException exception = assertThrows(DefenceSessionNotFoundException.class, () -> defenceSessionService.getById(defenceSessionId));
 
-        assertEquals("Defence session with " + defenceSessionId + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSession.getDefenceSessionId()}, Locale.ENGLISH), exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSessionId);
     }
@@ -203,7 +208,7 @@ public class DefenceSessionServiceTest {
 
         DefenceSessionNotFoundException exception = assertThrows(DefenceSessionNotFoundException.class, () -> defenceSessionService.removeById(defenceSessionId));
 
-        assertEquals("Defence session with " + defenceSessionId + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSession.getDefenceSessionId()}, Locale.ENGLISH), exception.getMessage());
         verify(defenceSessionRepository).existsById(defenceSessionId);
         verify(defenceSessionRepository, never()).deleteById(defenceSessionId);
     }

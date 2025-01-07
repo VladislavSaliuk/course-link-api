@@ -17,7 +17,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.BadCredentialsException;
 
 import java.time.Duration;
@@ -25,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,6 +42,8 @@ public class BookingSlotServiceTest {
     BookingSlotRepository bookingSlotRepository;
     @Mock
     DefenceSessionRepository defenceSessionRepository;
+    @Spy
+    MessageSource messageSource;
     @Mock
     UserRepository userRepository;
 
@@ -111,7 +116,7 @@ public class BookingSlotServiceTest {
         long defenceSessionId = 1L;
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> bookingSlotService.generateBookingSlots(defenceSessionId, bookingSlotsCount));
-        assertEquals("Booking slots count must be greater than 0!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.illegal.booking.slot.count", null, Locale.ENGLISH), exception.getMessage());
 
         verify(defenceSessionRepository, never()).findById(defenceSessionId);
         verify(bookingSlotRepository, never()).existsByDefenceSession_DefenceSessionId(defenceSessionId);
@@ -129,7 +134,7 @@ public class BookingSlotServiceTest {
                 .thenReturn(Optional.empty());
 
         DefenceSessionNotFoundException exception = assertThrows(DefenceSessionNotFoundException.class, () -> bookingSlotService.generateBookingSlots(defenceSessionId, bookingSlotsCount));
-        assertEquals("Defence session with ID " + defenceSessionId + " doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, Locale.ENGLISH), exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSessionId);
         verify(bookingSlotRepository, never()).existsByDefenceSession_DefenceSessionId(defenceSessionId);
@@ -148,7 +153,7 @@ public class BookingSlotServiceTest {
         when(bookingSlotRepository.existsByDefenceSession_DefenceSessionId(defenceSessionId)).thenReturn(true);
 
         DefenceSessionException exception = assertThrows(DefenceSessionException.class, () -> bookingSlotService.generateBookingSlots(defenceSessionId, bookingSlotsCount));
-        assertEquals("Booking slots for DefenceSession with ID " + defenceSessionId + " already exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.booking.slots.already.exist.with.defence.session.id", new Object[]{defenceSessionId}, Locale.ENGLISH), exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSessionId);
         verify(bookingSlotRepository).existsByDefenceSession_DefenceSessionId(defenceSessionId);
@@ -193,7 +198,7 @@ public class BookingSlotServiceTest {
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
 
-        assertEquals("User with " + userId + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.not.found.with.id", new Object[]{userId}, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).findById(userId);
         verify(bookingSlotRepository,never()).findById(bookingSlotId);
@@ -214,7 +219,7 @@ public class BookingSlotServiceTest {
 
         BookingSlotNotFoundException exception = assertThrows(BookingSlotNotFoundException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
 
-        assertEquals("Booking slot with " + userId + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.booking.slot.not.found.with.id", new Object[]{bookingSlotId}, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).findById(userId);
         verify(bookingSlotRepository).findById(bookingSlotId);
@@ -238,7 +243,7 @@ public class BookingSlotServiceTest {
 
         BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
 
-        assertEquals("User with " + userId + " Id is not a student!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.not.student", new Object[]{userId}, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).findById(userId);
         verify(bookingSlotRepository).findById(bookingSlotId);
@@ -261,7 +266,7 @@ public class BookingSlotServiceTest {
 
         BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
 
-        assertEquals("Booking slot with " + userId + " Id is already booked!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.booking.slot.already.booked", new Object[]{bookingSlotId}, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).findById(userId);
         verify(bookingSlotRepository).findById(bookingSlotId);
@@ -292,7 +297,7 @@ public class BookingSlotServiceTest {
                 .thenReturn(false);
 
         BookingSlotNotFoundException exception = assertThrows(BookingSlotNotFoundException.class, () -> bookingSlotService.removeBookingSlotByDefenceSessionId(defenceSessionId));
-        assertEquals("Booking slot with defence session " + defenceSessionId + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.no.booking.slots.with.defence.session.id", new Object[]{defenceSessionId}, Locale.ENGLISH), exception.getMessage());
 
         verify(bookingSlotRepository).existsByDefenceSession_DefenceSessionId(defenceSessionId);
         verify(bookingSlotRepository, never()).deleteByDefenceSession_DefenceSessionId(defenceSessionId);
@@ -324,7 +329,7 @@ public class BookingSlotServiceTest {
                 .thenReturn(Collections.emptyList());
 
         BookingSlotNotFoundException exception = assertThrows(BookingSlotNotFoundException.class, () -> bookingSlotService.getAllByDefenceSessionId(defenceSessionId));
-        assertEquals("Booking slots with " + defenceSessionId + " defence session Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.no.booking.slots.with.defence.session.id", new Object[]{defenceSessionId}, Locale.ENGLISH), exception.getMessage());
 
         verify(bookingSlotRepository).findAllByDefenceSession_DefenceSessionId(defenceSessionId);
 

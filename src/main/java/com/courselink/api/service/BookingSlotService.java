@@ -1,7 +1,6 @@
 package com.courselink.api.service;
 
 import com.courselink.api.dto.BookingSlotDTO;
-import com.courselink.api.dto.DefenceSessionDTO;
 import com.courselink.api.entity.BookingSlot;
 import com.courselink.api.entity.DefenceSession;
 import com.courselink.api.entity.Role;
@@ -16,6 +15,8 @@ import com.courselink.api.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
@@ -36,21 +37,26 @@ public class BookingSlotService {
 
     private final DefenceSessionRepository defenceSessionRepository;
 
+    private final MessageSource messageSource;
+
     public List<BookingSlotDTO> generateBookingSlots(long defenceSessionId, int bookingSlotsCount) {
         log.info("Generating booking slots for DefenceSession with ID: {}", defenceSessionId);
 
         if (bookingSlotsCount <= 0) {
-            throw new IllegalArgumentException("Booking slots count must be greater than 0!");
+            String errorMsg = messageSource.getMessage("message.illegal.booking.slot.count", null, LocaleContextHolder.getLocale());
+            throw new IllegalArgumentException(errorMsg);
         }
 
         DefenceSession defenceSession = defenceSessionRepository.findById(defenceSessionId).orElseThrow(() -> {
            log.warn("Defence session with ID {} not found", defenceSessionId);
-           throw new DefenceSessionNotFoundException("Defence session with ID " + defenceSessionId + " doesn't exist!");
+           String errorMsg = messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, LocaleContextHolder.getLocale());
+           throw new DefenceSessionNotFoundException(errorMsg);
         });
 
         if (bookingSlotRepository.existsByDefenceSession_DefenceSessionId(defenceSessionId)) {
             log.warn("Booking slots for DefenceSession with ID {} already exist!", defenceSessionId);
-            throw new DefenceSessionException("Booking slots for DefenceSession with ID " + defenceSessionId + " already exist!");
+            String errorMsg = messageSource.getMessage("message.booking.slots.already.exist.with.defence.session.id", new Object[]{defenceSessionId}, LocaleContextHolder.getLocale());
+            throw new DefenceSessionException(errorMsg);
         }
 
         List<BookingSlot> bookingSlots = createBookingSlots(defenceSession, bookingSlotsCount);
@@ -69,23 +75,27 @@ public class BookingSlotService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("User with ID {} not found", userId);
-                    return new UserNotFoundException("User with " + userId + " Id doesn't exist!");
+                    String errorMsg = messageSource.getMessage("message.user.not.found.with.id", new Object[]{userId}, LocaleContextHolder.getLocale());
+                    return new UserNotFoundException(errorMsg);
                 });
 
         BookingSlot bookingSlot = bookingSlotRepository.findById(bookingSlotId)
                 .orElseThrow(() -> {
-                    log.warn("Booking slot with ID {} not found", userId);
-                    return new BookingSlotNotFoundException("Booking slot with " + userId + " Id doesn't exist!");
+                    log.warn("Booking slot with ID {} not found", bookingSlotId);
+                    String errorMsg = messageSource.getMessage("message.booking.slot.not.found.with.id", new Object[]{bookingSlotId}, LocaleContextHolder.getLocale());
+                    return new BookingSlotNotFoundException(errorMsg);
                 });
 
         if(user.getRole() != Role.STUDENT && user.getRole() != Role.ADMIN_STUDENT) {
             log.warn("User with ID {} is not a student", userId);
-            throw new BadCredentialsException("User with " + userId + " Id is not a student!");
+            String errorMsg = messageSource.getMessage("message.user.not.student", new Object[]{userId}, LocaleContextHolder.getLocale());
+            throw new BadCredentialsException(errorMsg);
         }
 
         if(bookingSlot.isBooked()) {
-            log.warn("Booking slot with ID {} is already booked", userId);
-            throw new BadCredentialsException("Booking slot with " + userId + " Id is already booked!");
+            log.warn("Booking slot with ID {} is already booked", bookingSlotId);
+            String errorMsg = messageSource.getMessage("message.booking.slot.already.booked", new Object[]{bookingSlotId}, LocaleContextHolder.getLocale());
+            throw new BadCredentialsException(errorMsg);
         }
 
         bookingSlot.setUser(user);
@@ -102,7 +112,8 @@ public class BookingSlotService {
 
         if (!bookingSlotRepository.existsByDefenceSession_DefenceSessionId(defenceSessionId)) {
             log.warn("Booking slot with defence session ID {} not found", defenceSessionId);
-            throw new BookingSlotNotFoundException("Booking slot with defence session " + defenceSessionId + " Id doesn't exist!");
+            String errorMsg = messageSource.getMessage("message.no.booking.slots.with.defence.session.id", new Object[]{defenceSessionId}, LocaleContextHolder.getLocale());
+            throw new BookingSlotNotFoundException(errorMsg);
         }
 
         bookingSlotRepository.deleteByDefenceSession_DefenceSessionId(defenceSessionId);
@@ -117,7 +128,8 @@ public class BookingSlotService {
 
         if(bookingSlots.isEmpty()) {
             log.warn("Booking slots with defence session ID {} not found", defenceSessionId);
-            throw new BookingSlotNotFoundException("Booking slots with " + defenceSessionId + " defence session Id doesn't exist!");
+            String errorMsg = messageSource.getMessage("message.no.booking.slots.with.defence.session.id", new Object[]{defenceSessionId}, LocaleContextHolder.getLocale());
+            throw new BookingSlotNotFoundException(errorMsg);
         }
 
         log.info("Found booking slots with defence session ID: {}", defenceSessionId);

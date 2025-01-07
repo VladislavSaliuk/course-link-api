@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -25,6 +26,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+
+import java.util.Locale;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -51,6 +54,10 @@ public class UserManagementRestControllerIntegrationTest {
     MockMvc mockMvc;
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    MessageSource messageSource;
+
     User user;
     UpdateStatusDTO updateStatusDTO;
     UpdateRoleDTO updateRoleDTO;
@@ -126,7 +133,7 @@ public class UserManagementRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("User with " + updateStatusDTO.getUserId() + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateStatusDTO.getUserId()}, Locale.ENGLISH)));
 
     }
 
@@ -156,7 +163,7 @@ public class UserManagementRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("User with " + updateRoleDTO.getUserId() + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateRoleDTO.getUserId()}, Locale.ENGLISH)));
 
     }
 

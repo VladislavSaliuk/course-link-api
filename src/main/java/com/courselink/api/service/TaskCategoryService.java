@@ -8,6 +8,8 @@ import com.courselink.api.repository.TaskCategoryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,12 +22,15 @@ public class TaskCategoryService {
 
     private final TaskCategoryRepository taskCategoryRepository;
 
+    private final MessageSource messageSource;
+
     public TaskCategoryDTO createTaskCategory(TaskCategoryDTO taskCategoryDTO) {
         log.info("Creating TaskCategory: {}", taskCategoryDTO);
 
         if (taskCategoryRepository.existsByTaskCategoryName(taskCategoryDTO.getTaskCategoryName())) {
             log.error("TaskCategory with name '{}' already exists", taskCategoryDTO.getTaskCategoryName());
-            throw new TaskCategoryException("Task category with " + taskCategoryDTO.getTaskCategoryName() + " name already exists!");
+            String errorMsg = messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()}, LocaleContextHolder.getLocale());
+            throw new TaskCategoryException(errorMsg);
         }
 
         TaskCategory taskCategory = taskCategoryRepository.save(TaskCategory.toTaskCategory(taskCategoryDTO));
@@ -41,12 +46,14 @@ public class TaskCategoryService {
         TaskCategory updatedTaskCategory = taskCategoryRepository.findById(taskCategoryDTO.getTaskCategoryId())
                 .orElseThrow(() -> {
                     log.warn("TaskCategory with ID {} not found", taskCategoryDTO.getTaskCategoryId());
-                    return new TaskCategoryNotFoundException("Task category with " + taskCategoryDTO.getTaskCategoryId() + " Id doesn't exist!");
+                    String errorMsg = messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryDTO.getTaskCategoryId()}, LocaleContextHolder.getLocale());
+                    return new TaskCategoryNotFoundException(errorMsg);
                 });
 
         if (taskCategoryRepository.existsByTaskCategoryName(taskCategoryDTO.getTaskCategoryName())) {
-            log.error("TaskCategory with name '{}' already exists", taskCategoryDTO.getTaskCategoryName());
-            throw new TaskCategoryException("Task category with " + taskCategoryDTO.getTaskCategoryName() + " name already exists!");
+            log.error("TaskCategory with name {} already exists", taskCategoryDTO.getTaskCategoryName());
+            String errorMsg = messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()}, LocaleContextHolder.getLocale());
+            throw new TaskCategoryException(errorMsg);
         }
 
         updatedTaskCategory.setTaskCategoryName(taskCategoryDTO.getTaskCategoryName());
@@ -73,7 +80,8 @@ public class TaskCategoryService {
                 .map(taskCategory -> TaskCategoryDTO.toTaskCategoryDTO(taskCategory))
                 .orElseThrow(() -> {
                     log.warn("TaskCategory with ID {} not found", taskCategoryId);
-                    return new TaskCategoryNotFoundException("Task category with " + taskCategoryId + " Id doesn't exist!");
+                    String errorMsg = messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, LocaleContextHolder.getLocale());
+                    return new TaskCategoryNotFoundException(errorMsg);
                 });
     }
 
@@ -82,7 +90,8 @@ public class TaskCategoryService {
 
         if (!taskCategoryRepository.existsById(taskCategoryId)) {
             log.warn("TaskCategory with ID {} not found", taskCategoryId);
-            throw new TaskCategoryNotFoundException("Task category with " + taskCategoryId + " Id doesn't exist!");
+            String errorMsg = messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, LocaleContextHolder.getLocale());
+            throw new TaskCategoryNotFoundException(errorMsg);
         }
 
         taskCategoryRepository.deleteById(taskCategoryId);

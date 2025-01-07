@@ -9,6 +9,8 @@ import com.courselink.api.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 public class UserManagementService {
 
     private final UserRepository userRepository;
+
+    private final MessageSource messageSource;
     public List<UserDTO> getAll() {
 
         log.info("Fetching all Users");
@@ -38,7 +42,11 @@ public class UserManagementService {
         log.info("Updating User's status with ID: {}", updateStatusDTO.getUserId());
 
         User user = userRepository.findById(updateStatusDTO.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User with " + updateStatusDTO.getUserId() + " Id doesn't exist!"));
+                .orElseThrow(() -> {
+                    String errorMsg = messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateStatusDTO.getUserId()}, LocaleContextHolder.getLocale());
+                    log.error(errorMsg);
+                    return new UserNotFoundException(errorMsg);
+                });
 
         user.setStatus(updateStatusDTO.getStatus());
 
@@ -54,7 +62,11 @@ public class UserManagementService {
         log.info("Updating User's status with ID: {}", updateRoleDTO.getUserId());
 
         User user = userRepository.findById(updateRoleDTO.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User with " + updateRoleDTO.getUserId() + " Id doesn't exist!"));
+                .orElseThrow(() -> {
+                    String errorMsg = messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateRoleDTO.getUserId()}, LocaleContextHolder.getLocale());
+                    log.error(errorMsg);
+                    return new UserNotFoundException(errorMsg);
+                });
 
         user.setRole(updateRoleDTO.getRole());
 

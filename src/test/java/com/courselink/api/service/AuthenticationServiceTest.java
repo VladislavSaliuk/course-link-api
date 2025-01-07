@@ -14,7 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -39,6 +42,8 @@ public class AuthenticationServiceTest {
     PasswordEncoder passwordEncoder;
     @Mock
     JwtService jwtService;
+    @Spy
+    MessageSource messageSource;
     @Mock
     AuthenticationManager authenticationManager;
     RegistrationRequestDTO registrationRequestDTO;
@@ -113,7 +118,7 @@ public class AuthenticationServiceTest {
                 .thenReturn(true);
 
         BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> authenticationService.register(registrationRequestDTO));
-        assertEquals("User with username " + registrationRequestDTO.getUsername() + " already exists!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.already.exists.with.username", new Object[]{registrationRequestDTO.getUsername()}, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).existsByUsername(registrationRequestDTO.getUsername());
         verify(userRepository , never()).existsByEmail(registrationRequestDTO.getEmail());
@@ -133,7 +138,7 @@ public class AuthenticationServiceTest {
                 .thenReturn(true);
 
         BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> authenticationService.register(registrationRequestDTO));
-        assertEquals("User with email " + registrationRequestDTO.getEmail() + " already exists!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.already.exists.with.email", new Object[]{registrationRequestDTO.getEmail()}, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).existsByUsername(registrationRequestDTO.getUsername());
         verify(userRepository ).existsByEmail(registrationRequestDTO.getEmail());
@@ -171,7 +176,7 @@ public class AuthenticationServiceTest {
         when(userRepository.findByUsername(authenticationRequestDTO.getUsername())).thenReturn(Optional.empty());
 
         UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> authenticationService.authenticate(authenticationRequestDTO));
-        assertEquals("User not found with username: " + user.getUsername(), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.not.found.with.username", new Object[]{authenticationRequestDTO.getUsername()}, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).findByUsername(authenticationRequestDTO.getUsername());
         verify(passwordEncoder,never()).matches(authenticationRequestDTO.getPassword(), user.getPassword());
@@ -187,7 +192,7 @@ public class AuthenticationServiceTest {
         when(userRepository.findByUsername(authenticationRequestDTO.getUsername())).thenReturn(Optional.of(user));
 
         BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> authenticationService.authenticate(authenticationRequestDTO));
-        assertEquals("You are banned!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.banned", null, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).findByUsername(authenticationRequestDTO.getUsername());
         verify(passwordEncoder,never()).matches(authenticationRequestDTO.getPassword(), user.getPassword());
@@ -203,7 +208,7 @@ public class AuthenticationServiceTest {
         when(passwordEncoder.matches(authenticationRequestDTO.getPassword(), user.getPassword())).thenReturn(false);
 
         BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> authenticationService.authenticate(authenticationRequestDTO));
-        assertEquals("Invalid password for user: " + user.getUsername(), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.invalid.password", new Object[]{authenticationRequestDTO.getPassword()}, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).findByUsername(authenticationRequestDTO.getUsername());
         verify(passwordEncoder).matches(authenticationRequestDTO.getPassword(), user.getPassword());

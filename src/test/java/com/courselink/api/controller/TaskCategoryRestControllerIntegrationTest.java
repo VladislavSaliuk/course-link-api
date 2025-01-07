@@ -1,5 +1,6 @@
 package com.courselink.api.controller;
 
+import com.courselink.api.config.LanguageConfig;
 import com.courselink.api.dto.TaskCategoryDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -21,6 +24,9 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+
+import java.util.List;
+import java.util.Locale;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,6 +53,9 @@ public class TaskCategoryRestControllerIntegrationTest {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    MessageSource messageSource;
     TaskCategoryDTO taskCategoryDTO;
 
     @BeforeEach
@@ -100,12 +109,12 @@ public class TaskCategoryRestControllerIntegrationTest {
         taskCategoryDTO.setTaskCategoryName(taskCategoryName);
 
         mockMvc.perform(post("/api/task-categories")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(taskCategoryDTO)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskCategoryDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Task category with " + taskCategoryName + " name already exists!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryName}, Locale.ENGLISH)));
 
     }
 
@@ -144,7 +153,7 @@ public class TaskCategoryRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("Task category with " + taskCategoryDTO.getTaskCategoryId() + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryDTO.getTaskCategoryId()}, Locale.ENGLISH)));
 
     }
 
@@ -179,7 +188,7 @@ public class TaskCategoryRestControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Task category with " + taskCategoryDTO.getTaskCategoryName() + " name already exists!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()}, Locale.ENGLISH)));
 
     }
 
@@ -216,7 +225,7 @@ public class TaskCategoryRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("Task category with " + taskCategoryId + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, Locale.ENGLISH)));
 
     }
 
@@ -244,7 +253,7 @@ public class TaskCategoryRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("Task category with " + taskCategoryId + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, Locale.ENGLISH)));
 
     }
 

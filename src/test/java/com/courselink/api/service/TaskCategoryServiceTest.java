@@ -11,9 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -25,6 +28,9 @@ public class TaskCategoryServiceTest {
     TaskCategoryService taskCategoryService;
     @Mock
     TaskCategoryRepository taskCategoryRepository;
+    @Spy
+    MessageSource messageSource;
+
     TaskCategory taskCategory;
     TaskCategoryDTO taskCategoryDTO;
     @BeforeEach
@@ -63,7 +69,7 @@ public class TaskCategoryServiceTest {
 
         TaskCategoryException exception = assertThrows(TaskCategoryException.class, () -> taskCategoryService.createTaskCategory(taskCategoryDTO));
 
-        assertEquals("Task category with " + taskCategoryDTO.getTaskCategoryName() + " name already exists!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()}, Locale.ENGLISH), exception.getMessage());
 
         verify(taskCategoryRepository).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
         verify(taskCategoryRepository, never()).save(taskCategory);
@@ -99,7 +105,7 @@ public class TaskCategoryServiceTest {
 
         TaskCategoryNotFoundException exception = assertThrows(TaskCategoryNotFoundException.class, () -> taskCategoryService.updateTaskCategory(taskCategoryDTO));
 
-        assertEquals("Task category with " + taskCategory.getTaskCategoryId() + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryDTO.getTaskCategoryId()}, Locale.ENGLISH), exception.getMessage());
 
         verify(taskCategoryRepository).findById(taskCategory.getTaskCategoryId());
         verify(taskCategoryRepository, never()).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
@@ -116,7 +122,7 @@ public class TaskCategoryServiceTest {
 
         TaskCategoryException exception = assertThrows(TaskCategoryException.class, () -> taskCategoryService.updateTaskCategory(taskCategoryDTO));
 
-        assertEquals("Task category with " + taskCategoryDTO.getTaskCategoryName() + " name already exists!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()}, Locale.ENGLISH), exception.getMessage());
 
         verify(taskCategoryRepository).findById(taskCategory.getTaskCategoryId());
         verify(taskCategoryRepository).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
@@ -166,7 +172,7 @@ public class TaskCategoryServiceTest {
 
         TaskCategoryNotFoundException exception = assertThrows(TaskCategoryNotFoundException.class, () -> taskCategoryService.getById(taskCategoryId));
 
-        assertEquals("Task category with " + taskCategoryId + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, Locale.ENGLISH), exception.getMessage());
 
         verify(taskCategoryRepository).findById(taskCategoryId);
     }
@@ -198,7 +204,7 @@ public class TaskCategoryServiceTest {
 
         TaskCategoryNotFoundException exception = assertThrows(TaskCategoryNotFoundException.class, () -> taskCategoryService.removeById(taskCategoryId));
 
-        assertEquals("Task category with " + taskCategoryId + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, Locale.ENGLISH), exception.getMessage());
 
         verify(taskCategoryRepository).existsById(taskCategoryId);
         verify(taskCategoryRepository, never()).deleteById(taskCategoryId);

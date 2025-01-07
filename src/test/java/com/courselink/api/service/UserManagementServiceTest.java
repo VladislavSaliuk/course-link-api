@@ -16,9 +16,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -31,6 +34,8 @@ public class UserManagementServiceTest {
     UserManagementService userManagementService;
     @Mock
     UserRepository userRepository;
+    @Spy
+    MessageSource messageSource;
     UpdateStatusDTO updateStatusDTO;
     UpdateRoleDTO updateRoleDTO;
     User user;
@@ -106,10 +111,9 @@ public class UserManagementServiceTest {
                 .thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userManagementService.updateStatus(updateStatusDTO));
-        assertEquals("User with " + updateStatusDTO.getUserId() + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateStatusDTO.getUserId()}, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).findById(updateStatusDTO.getUserId());
-
     }
 
     @ParameterizedTest
@@ -136,7 +140,7 @@ public class UserManagementServiceTest {
                 .thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userManagementService.updateRole(updateRoleDTO));
-        assertEquals("User with " + updateRoleDTO.getUserId() + " Id doesn't exist!", exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateRoleDTO.getUserId()}, Locale.ENGLISH), exception.getMessage());
 
         verify(userRepository).findById(updateRoleDTO.getUserId());
 

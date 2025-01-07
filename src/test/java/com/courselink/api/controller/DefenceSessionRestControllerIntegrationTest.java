@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -29,6 +30,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -56,6 +58,9 @@ public class DefenceSessionRestControllerIntegrationTest {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    MessageSource messageSource;
     DefenceSessionDTO defenceSessionDTO;
 
     @BeforeEach
@@ -198,7 +203,7 @@ public class DefenceSessionRestControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Start time can not be greater than end time!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, Locale.ENGLISH)));
 
     }
 
@@ -217,7 +222,7 @@ public class DefenceSessionRestControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Time conflict: The session overlaps with an existing session on the same day."));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.time.conflict", null, Locale.ENGLISH)));
     }
 
     @Test
@@ -255,7 +260,7 @@ public class DefenceSessionRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("Defence session with " + defenceSessionDTO.getDefenceSessionId() + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionDTO.getDefenceSessionId()}, Locale.ENGLISH)));
 
     }
 
@@ -356,7 +361,7 @@ public class DefenceSessionRestControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Start time can not be greater than end time!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, Locale.ENGLISH)));
 
     }
 
@@ -376,7 +381,7 @@ public class DefenceSessionRestControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Time conflict: The session overlaps with an existing session on the same day."));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.time.conflict", null, Locale.ENGLISH)));
     }
 
     @Test
@@ -412,7 +417,7 @@ public class DefenceSessionRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("Defence session with " + defenceSessionId + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, Locale.ENGLISH)));
 
     }
 
@@ -440,7 +445,7 @@ public class DefenceSessionRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("Defence session with " + defenceSessionId + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, Locale.ENGLISH)));
 
     }
 

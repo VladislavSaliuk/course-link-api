@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -22,6 +23,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+
+import java.util.Locale;
 
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
@@ -48,8 +51,12 @@ public class AuthenticationRestControllerIntegrationTest {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    MessageSource messageSource;
     RegistrationRequestDTO registrationRequestDTO;
     AuthenticationRequestDTO authenticationRequestDTO;
+
     @BeforeEach
     void setUp() {
 
@@ -183,7 +190,7 @@ public class AuthenticationRestControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User with username "  + username + " already exists!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.already.exists.with.username", new Object[]{username}, Locale.ENGLISH)));
     }
 
     @ParameterizedTest
@@ -202,7 +209,7 @@ public class AuthenticationRestControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User with email " + registrationRequestDTO.getEmail() + " already exists!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.already.exists.with.email", new Object[]{email} , Locale.ENGLISH)));
     }
 
     @Test
@@ -294,7 +301,7 @@ public class AuthenticationRestControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User not found with username: " + authenticationRequestDTO.getUsername()));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.found.with.username", new Object[]{authenticationRequestDTO.getUsername()}, Locale.ENGLISH)));
     }
 
     @ParameterizedTest
@@ -314,7 +321,7 @@ public class AuthenticationRestControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authenticationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("Invalid password for user: " + username));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.invalid.password", new Object[]{username}, Locale.ENGLISH)));
     }
 
 }

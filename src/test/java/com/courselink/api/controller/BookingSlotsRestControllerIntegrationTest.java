@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -21,6 +22,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+
+import java.util.Locale;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -42,6 +45,9 @@ public class BookingSlotsRestControllerIntegrationTest {
 
     @Autowired
     WebApplicationContext wac;
+
+    @Autowired
+    MessageSource messageSource;
     MockMvc mockMvc;
     @Autowired
     ObjectMapper objectMapper;
@@ -100,7 +106,7 @@ public class BookingSlotsRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("Defence session with ID " + defenceSessionId + " doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, Locale.ENGLISH)));
 
     }
 
@@ -126,7 +132,7 @@ public class BookingSlotsRestControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Booking slots for DefenceSession with ID " + defenceSessionId + " already exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.booking.slots.already.exist.with.defence.session.id", new Object[]{defenceSessionId}, Locale.ENGLISH)));
 
     }
 
@@ -164,7 +170,7 @@ public class BookingSlotsRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("User with " + userId + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.found.with.id", new Object[]{userId}, Locale.ENGLISH)));
 
 
     }
@@ -184,7 +190,7 @@ public class BookingSlotsRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("Booking slot with " + userId + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.booking.slot.not.found.with.id", new Object[]{bookingSlotId}, Locale.ENGLISH)));
 
     }
 
@@ -203,7 +209,7 @@ public class BookingSlotsRestControllerIntegrationTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("User with " + userId + " Id is not a student!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.student", new Object[]{userId}, Locale.ENGLISH)));
 
     }
 
@@ -231,7 +237,7 @@ public class BookingSlotsRestControllerIntegrationTest {
                         .param("defenceSessionId", String.valueOf(defenceSessionId)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("Booking slot with defence session " + defenceSessionId + " Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.no.booking.slots.with.defence.session.id", new Object[]{defenceSessionId}, Locale.ENGLISH)));
 
     }
 
@@ -261,7 +267,7 @@ public class BookingSlotsRestControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value("Booking slots with " + defenceSessionId + " defence session Id doesn't exist!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.no.booking.slots.with.defence.session.id", new Object[]{defenceSessionId}, Locale.ENGLISH)));
 
     }
 
