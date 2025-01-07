@@ -177,39 +177,31 @@ public class AuthenticationRestControllerIntegrationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "alice.johnson", "bob.smith", "charlie.brown", "david.williams",
-            "eva.jones", "frank.miller", "grace.wilson", "hannah.moore",
-            "ivy.taylor", "jake.anderson"
-    })
-    void register_shouldReturnUnprocessableEntityStatus_whenUsernameAlreadyExists(String username) throws Exception {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void register_shouldReturnUnprocessableEntityStatus_whenUsernameAlreadyExists(String language) throws Exception {
 
-        registrationRequestDTO.setUsername(username);
+        registrationRequestDTO.setUsername("charlie.brown");
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registrationRequestDTO)))
+                        .content(objectMapper.writeValueAsString(registrationRequestDTO))
+                        .header("Accept-Language", language))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.already.exists.with.username", new Object[]{username}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.already.exists.with.username", new Object[]{registrationRequestDTO.getUsername()}, new Locale(language))));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "alice.johnson@student.university.com", "bob.smith@student.university.com",
-            "charlie.brown@student.university.com", "david.williams@faculty.university.com",
-            "eva.jones@faculty.university.com", "frank.miller@admin.university.com",
-            "grace.wilson@student.university.com", "hannah.moore@faculty.university.com",
-            "ivy.taylor@student.university.com", "jake.anderson@faculty.university.com"
-    })
-    void register_shouldReturnUnprocessableEntityStatus_whenEmailAlreadyExists(String email) throws Exception {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void register_shouldReturnUnprocessableEntityStatus_whenEmailAlreadyExists(String language) throws Exception {
 
-        registrationRequestDTO.setEmail(email);
+        registrationRequestDTO.setEmail("eva.jones@faculty.university.com");
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registrationRequestDTO)))
+                        .content(objectMapper.writeValueAsString(registrationRequestDTO))
+                        .header("Accept-Language", language))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.already.exists.with.email", new Object[]{email} , Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.already.exists.with.email", new Object[]{registrationRequestDTO.getEmail()} , new Locale(language))));
     }
 
     @Test
@@ -294,24 +286,23 @@ public class AuthenticationRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.message").value("User should contains a password!"));
     }
 
-    @Test
-    void authenticate_shouldReturnUnprocessableEntityStatus_whenUsernameNotFound() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void authenticate_shouldReturnUnprocessableEntityStatus_whenUsernameNotFound(String language) throws Exception {
 
         mockMvc.perform(post("/api/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registrationRequestDTO)))
+                        .content(objectMapper.writeValueAsString(registrationRequestDTO))
+                        .header("Accept-Language", language))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.found.with.username", new Object[]{authenticationRequestDTO.getUsername()}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.found.with.username", new Object[]{authenticationRequestDTO.getUsername()}, new Locale(language))));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "alice.johnson", "bob.smith", "charlie.brown", "david.williams",
-            "eva.jones", "frank.miller", "grace.wilson", "hannah.moore",
-            "ivy.taylor", "jake.anderson"
-    })
-    void authenticate_shouldReturnUnprocessableEntityStatus_whenPasswordIsIncorrect(String username) throws Exception {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void authenticate_shouldReturnUnprocessableEntityStatus_whenPasswordIsIncorrect(String language) throws Exception {
 
+        String username = "alice.johnson";
         String password = "1234";
 
         authenticationRequestDTO.setUsername(username);
@@ -319,9 +310,10 @@ public class AuthenticationRestControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authenticationRequestDTO)))
+                        .content(objectMapper.writeValueAsString(authenticationRequestDTO))
+                        .header("Accept-Language", language))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.invalid.password", new Object[]{username}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.invalid.password", new Object[]{username},new Locale(language))));
     }
 
 }

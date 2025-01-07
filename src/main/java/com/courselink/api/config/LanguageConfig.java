@@ -8,8 +8,8 @@ import java.util.Locale;
 @Configuration
 public class LanguageConfig {
     public static final List<Locale> LOCALES = List.of(
-            new Locale("ua"),
-            new Locale("ua"),
+            new Locale("uk"),
+            new Locale("en"),
             new Locale("ru"),
             new Locale("pl"),
             new Locale("de")

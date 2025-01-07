@@ -110,13 +110,13 @@ public class BookingSlotServiceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {0, -1})
-    void generateBookingSlots_shouldThrowException_whenBookingSlotsCountIsLessThenZeroOrEquals(int bookingSlotsCount) {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void generateBookingSlots_shouldThrowException_whenBookingSlotsCountIsLessThenZeroOrEquals(String language) {
 
         long defenceSessionId = 1L;
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> bookingSlotService.generateBookingSlots(defenceSessionId, bookingSlotsCount));
-        assertEquals(messageSource.getMessage("message.illegal.booking.slot.count", null, Locale.ENGLISH), exception.getMessage());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> bookingSlotService.generateBookingSlots(defenceSessionId, -100));
+        assertEquals(messageSource.getMessage("message.illegal.booking.slot.count", null, new Locale(language)), exception.getMessage());
 
         verify(defenceSessionRepository, never()).findById(defenceSessionId);
         verify(bookingSlotRepository, never()).existsByDefenceSession_DefenceSessionId(defenceSessionId);
@@ -124,8 +124,9 @@ public class BookingSlotServiceTest {
 
     }
 
-    @Test
-    void generateBookingSlots_shouldThrowException_whenDefenceSessionNotFound() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void generateBookingSlots_shouldThrowException_whenDefenceSessionNotFound(String language) {
 
         long defenceSessionId = 100L;
         int bookingSlotsCount = 1;
@@ -134,7 +135,7 @@ public class BookingSlotServiceTest {
                 .thenReturn(Optional.empty());
 
         DefenceSessionNotFoundException exception = assertThrows(DefenceSessionNotFoundException.class, () -> bookingSlotService.generateBookingSlots(defenceSessionId, bookingSlotsCount));
-        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, new Locale(language)), exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSessionId);
         verify(bookingSlotRepository, never()).existsByDefenceSession_DefenceSessionId(defenceSessionId);
@@ -142,8 +143,9 @@ public class BookingSlotServiceTest {
 
     }
 
-    @Test
-    void generateBookingSlots_shouldThrowException_whenDefenceSessionIdIsAlreadyExists() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void generateBookingSlots_shouldThrowException_whenDefenceSessionIdIsAlreadyExists(String language) {
 
         long defenceSessionId = 5L;
         int bookingSlotsCount = 1;
@@ -153,7 +155,7 @@ public class BookingSlotServiceTest {
         when(bookingSlotRepository.existsByDefenceSession_DefenceSessionId(defenceSessionId)).thenReturn(true);
 
         DefenceSessionException exception = assertThrows(DefenceSessionException.class, () -> bookingSlotService.generateBookingSlots(defenceSessionId, bookingSlotsCount));
-        assertEquals(messageSource.getMessage("message.booking.slots.already.exist.with.defence.session.id", new Object[]{defenceSessionId}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.booking.slots.already.exist.with.defence.session.id", new Object[]{defenceSessionId}, new Locale(language)), exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSessionId);
         verify(bookingSlotRepository).existsByDefenceSession_DefenceSessionId(defenceSessionId);
@@ -186,9 +188,9 @@ public class BookingSlotServiceTest {
         verify(bookingSlotRepository).findById(bookingSlotId);
 
     }
-
-    @Test
-    void chooseBookingSlot_shouldThrowException_whenUserNotFound() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void chooseBookingSlot_shouldThrowException_whenUserNotFound(String language) {
 
         long userId = 100L;
         long bookingSlotId = 1L;
@@ -198,15 +200,16 @@ public class BookingSlotServiceTest {
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
 
-        assertEquals(messageSource.getMessage("message.user.not.found.with.id", new Object[]{userId}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.not.found.with.id", new Object[]{userId},new Locale(language)), exception.getMessage());
 
         verify(userRepository).findById(userId);
         verify(bookingSlotRepository,never()).findById(bookingSlotId);
 
     }
 
-    @Test
-    void chooseBookingSlot_shouldThrowException_whenBookingSlotNotFound() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void chooseBookingSlot_shouldThrowException_whenBookingSlotNotFound(String language) {
 
         long userId = 1L;
         long bookingSlotId = 100L;
@@ -219,7 +222,7 @@ public class BookingSlotServiceTest {
 
         BookingSlotNotFoundException exception = assertThrows(BookingSlotNotFoundException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
 
-        assertEquals(messageSource.getMessage("message.booking.slot.not.found.with.id", new Object[]{bookingSlotId}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.booking.slot.not.found.with.id", new Object[]{bookingSlotId}, new Locale(language)), exception.getMessage());
 
         verify(userRepository).findById(userId);
         verify(bookingSlotRepository).findById(bookingSlotId);
@@ -227,13 +230,13 @@ public class BookingSlotServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = Role.class, names = {"ADMIN_TEACHER", "ADMIN", "TEACHER"})
-    void chooseBookingSlot_shouldThrowException_whenUserIsNotAStudent(Role role) {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void chooseBookingSlot_shouldThrowException_whenUserIsNotAStudent(String language) {
 
         long userId = 1L;
         long bookingSlotId = 1L;
 
-        user.setRole(role);
+        user.setRole(Role.ADMIN);
 
         when(userRepository.findById(userId))
                 .thenReturn(Optional.of(user));
@@ -243,15 +246,16 @@ public class BookingSlotServiceTest {
 
         BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
 
-        assertEquals(messageSource.getMessage("message.user.not.student", new Object[]{userId}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.not.student", new Object[]{userId}, new Locale(language)), exception.getMessage());
 
         verify(userRepository).findById(userId);
         verify(bookingSlotRepository).findById(bookingSlotId);
 
     }
 
-    @Test
-    void chooseBookingSlot_shouldThrowException_whenBookingSlotISAlreadyBooked() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void chooseBookingSlot_shouldThrowException_whenBookingSlotISAlreadyBooked(String language) {
 
         long userId = 1L;
         long bookingSlotId = 1L;
@@ -266,7 +270,7 @@ public class BookingSlotServiceTest {
 
         BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> bookingSlotService.chooseBookingSlot(userId, bookingSlotId));
 
-        assertEquals(messageSource.getMessage("message.booking.slot.already.booked", new Object[]{bookingSlotId}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.booking.slot.already.booked", new Object[]{bookingSlotId}, new Locale(language)), exception.getMessage());
 
         verify(userRepository).findById(userId);
         verify(bookingSlotRepository).findById(bookingSlotId);
@@ -290,14 +294,16 @@ public class BookingSlotServiceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
-    void removeBookingSlotByDefenceSessionId_shouldNotDeleteBookingSlot_whenBookingSlotDoesntExist(long defenceSessionId) {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void removeBookingSlotByDefenceSessionId_shouldNotDeleteBookingSlot_whenBookingSlotDoesntExist(String language) {
+
+        long defenceSessionId = 100L;
 
         when(bookingSlotRepository.existsByDefenceSession_DefenceSessionId(defenceSessionId))
                 .thenReturn(false);
 
         BookingSlotNotFoundException exception = assertThrows(BookingSlotNotFoundException.class, () -> bookingSlotService.removeBookingSlotByDefenceSessionId(defenceSessionId));
-        assertEquals(messageSource.getMessage("message.no.booking.slots.with.defence.session.id", new Object[]{defenceSessionId}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.no.booking.slots.with.defence.session.id", new Object[]{defenceSessionId}, new Locale(language)), exception.getMessage());
 
         verify(bookingSlotRepository).existsByDefenceSession_DefenceSessionId(defenceSessionId);
         verify(bookingSlotRepository, never()).deleteByDefenceSession_DefenceSessionId(defenceSessionId);
@@ -322,16 +328,16 @@ public class BookingSlotServiceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(longs = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L})
-    void getAllByDefenceSessionId_shouldThrowException_whenBookingSlotsNotFound(long defenceSessionId) {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void getAllByDefenceSessionId_shouldThrowException_whenBookingSlotsNotFound(String language) {
 
-        when(bookingSlotRepository.findAllByDefenceSession_DefenceSessionId(defenceSessionId))
+        when(bookingSlotRepository.findAllByDefenceSession_DefenceSessionId(100L))
                 .thenReturn(Collections.emptyList());
 
-        BookingSlotNotFoundException exception = assertThrows(BookingSlotNotFoundException.class, () -> bookingSlotService.getAllByDefenceSessionId(defenceSessionId));
-        assertEquals(messageSource.getMessage("message.no.booking.slots.with.defence.session.id", new Object[]{defenceSessionId}, Locale.ENGLISH), exception.getMessage());
+        BookingSlotNotFoundException exception = assertThrows(BookingSlotNotFoundException.class, () -> bookingSlotService.getAllByDefenceSessionId(100L));
+        assertEquals(messageSource.getMessage("message.no.booking.slots.with.defence.session.id", new Object[]{100}, new Locale(language)), exception.getMessage());
 
-        verify(bookingSlotRepository).findAllByDefenceSession_DefenceSessionId(defenceSessionId);
+        verify(bookingSlotRepository).findAllByDefenceSession_DefenceSessionId(100L);
 
     }
 

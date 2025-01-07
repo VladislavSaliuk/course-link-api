@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -121,19 +122,21 @@ public class UserManagementRestControllerIntegrationTest {
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "admin", roles = {"ADMIN", "ADMIN_TEACHER", "ADMIN_STUDENT"})
-    void updateStatus_shouldReturnNotFoundStatus_whenUserNotFound() throws Exception {
+    void updateStatus_shouldReturnNotFoundStatus_whenUserNotFound(String language) throws Exception {
 
         updateStatusDTO.setUserId(100L);
 
         mockMvc.perform(put("/api/users/update-status")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(updateStatusDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateStatusDTO.getUserId()}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateStatusDTO.getUserId()}, new Locale(language))));
 
     }
 
@@ -151,19 +154,21 @@ public class UserManagementRestControllerIntegrationTest {
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "admin", roles = {"ADMIN", "ADMIN_TEACHER", "ADMIN_STUDENT"})
-    void updateRole_shouldReturnNotFoundStatus_whenUserNotFound() throws Exception {
+    void updateRole_shouldReturnNotFoundStatus_whenUserNotFound(String language) throws Exception {
 
         updateRoleDTO.setUserId(100L);
 
         mockMvc.perform(put("/api/users/update-role")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(updateRoleDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateRoleDTO.getUserId()}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateRoleDTO.getUserId()}, new Locale(language))));
 
     }
 

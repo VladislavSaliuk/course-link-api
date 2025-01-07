@@ -9,6 +9,8 @@ import com.courselink.api.repository.TaskCategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -61,15 +63,16 @@ public class TaskCategoryServiceTest {
 
     }
 
-    @Test
-    void createTaskCategory_shouldThrowException_whenInputContainsExistingTaskCategoryName() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void createTaskCategory_shouldThrowException_whenInputContainsExistingTaskCategoryName(String language) {
 
         when(taskCategoryRepository.existsByTaskCategoryName(taskCategoryDTO.getTaskCategoryName()))
                 .thenReturn(true);
 
         TaskCategoryException exception = assertThrows(TaskCategoryException.class, () -> taskCategoryService.createTaskCategory(taskCategoryDTO));
 
-        assertEquals(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()},new Locale(language)), exception.getMessage());
 
         verify(taskCategoryRepository).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
         verify(taskCategoryRepository, never()).save(taskCategory);
@@ -97,22 +100,24 @@ public class TaskCategoryServiceTest {
         verify(taskCategoryRepository).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
     }
 
-    @Test
-    void updateTaskCategory_shouldThrowException_whenTaskCategoryNotFound() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void updateTaskCategory_shouldThrowException_whenTaskCategoryNotFound(String language) {
 
         when(taskCategoryRepository.findById(taskCategoryDTO.getTaskCategoryId()))
                 .thenReturn(Optional.empty());
 
         TaskCategoryNotFoundException exception = assertThrows(TaskCategoryNotFoundException.class, () -> taskCategoryService.updateTaskCategory(taskCategoryDTO));
 
-        assertEquals(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryDTO.getTaskCategoryId()}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryDTO.getTaskCategoryId()}, new Locale(language)), exception.getMessage());
 
         verify(taskCategoryRepository).findById(taskCategory.getTaskCategoryId());
         verify(taskCategoryRepository, never()).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
     }
 
-    @Test
-    void updateTaskCategory_shouldThrowException_whenInputContainsExistingTaskCategoryName() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void updateTaskCategory_shouldThrowException_whenInputContainsExistingTaskCategoryName(String language) {
 
         when(taskCategoryRepository.findById(taskCategoryDTO.getTaskCategoryId()))
                 .thenReturn(Optional.of(taskCategory));
@@ -122,7 +127,7 @@ public class TaskCategoryServiceTest {
 
         TaskCategoryException exception = assertThrows(TaskCategoryException.class, () -> taskCategoryService.updateTaskCategory(taskCategoryDTO));
 
-        assertEquals(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()}, new Locale(language)), exception.getMessage());
 
         verify(taskCategoryRepository).findById(taskCategory.getTaskCategoryId());
         verify(taskCategoryRepository).existsByTaskCategoryName(taskCategory.getTaskCategoryName());
@@ -162,8 +167,9 @@ public class TaskCategoryServiceTest {
 
     }
 
-    @Test
-    void getById_shouldThrowException_whenInputContainsNotExistingId() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void getById_shouldThrowException_whenInputContainsNotExistingId(String language) {
 
         long taskCategoryId = 100L;
 
@@ -172,7 +178,7 @@ public class TaskCategoryServiceTest {
 
         TaskCategoryNotFoundException exception = assertThrows(TaskCategoryNotFoundException.class, () -> taskCategoryService.getById(taskCategoryId));
 
-        assertEquals(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId},new Locale(language)), exception.getMessage());
 
         verify(taskCategoryRepository).findById(taskCategoryId);
     }
@@ -194,8 +200,9 @@ public class TaskCategoryServiceTest {
 
     }
 
-    @Test
-    void removeById_shouldThrowException_whenInputContainsNotExistingId() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void removeById_shouldThrowException_whenInputContainsNotExistingId(String language) {
 
         long taskCategoryId = 100L;
 
@@ -204,7 +211,7 @@ public class TaskCategoryServiceTest {
 
         TaskCategoryNotFoundException exception = assertThrows(TaskCategoryNotFoundException.class, () -> taskCategoryService.removeById(taskCategoryId));
 
-        assertEquals(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, new Locale(language)), exception.getMessage());
 
         verify(taskCategoryRepository).existsById(taskCategoryId);
         verify(taskCategoryRepository, never()).deleteById(taskCategoryId);

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -104,14 +105,15 @@ public class UserManagementServiceTest {
         verify(userRepository).findById(updateStatusDTO.getUserId());
     }
 
-    @Test
-    void updateStatus_shouldThrowException_whenUserNotFound() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void updateStatus_shouldThrowException_whenUserNotFound(String language) {
 
         when(userRepository.findById(updateStatusDTO.getUserId()))
                 .thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userManagementService.updateStatus(updateStatusDTO));
-        assertEquals(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateStatusDTO.getUserId()}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateStatusDTO.getUserId()}, new Locale(language)), exception.getMessage());
 
         verify(userRepository).findById(updateStatusDTO.getUserId());
     }
@@ -133,14 +135,15 @@ public class UserManagementServiceTest {
         verify(userRepository).findById(updateStatusDTO.getUserId());
     }
 
-    @Test
-    void updateRole_shouldThrowException_whenUserNotFound() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void updateRole_shouldThrowException_whenUserNotFound(String language) {
 
         when(userRepository.findById(updateRoleDTO.getUserId()))
                 .thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userManagementService.updateRole(updateRoleDTO));
-        assertEquals(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateRoleDTO.getUserId()}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.user.not.found.with.id", new Object[]{updateRoleDTO.getUserId()}, new Locale(language)), exception.getMessage());
 
         verify(userRepository).findById(updateRoleDTO.getUserId());
 

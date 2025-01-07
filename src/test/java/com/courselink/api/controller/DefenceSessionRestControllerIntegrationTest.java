@@ -25,6 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.com.google.common.cache.LoadingCache;
 import org.testcontainers.utility.DockerImageName;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -190,39 +191,42 @@ public class DefenceSessionRestControllerIntegrationTest {
     }
 
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void createDefenceSession_shouldReturnUnprocessableEntity_whenStartTimeIsGreaterThanEndTime() throws Exception {
+    void createDefenceSession_shouldReturnUnprocessableEntity_whenStartTimeIsGreaterThanEndTime(String language) throws Exception {
 
         defenceSessionDTO.setStartTime(LocalTime.of(14, 0));
         defenceSessionDTO.setEndTime(LocalTime.of(12, 0));
 
         mockMvc.perform(post("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, new Locale(language))));
 
     }
 
     @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    @MethodSource("provideLocaleTimesForDefenceSession")
-    void createDefenceSession_shouldReturnUnprocessableEntity_whenDefenceTimeOverlaps(LocalTime startTime, LocalTime endTime) throws Exception {
+    void createDefenceSession_shouldReturnUnprocessableEntity_whenDefenceTimeOverlaps(String language) throws Exception {
 
         defenceSessionDTO.setDefenseDate(LocalDate.of(2024, 12,10));
-        defenceSessionDTO.setStartTime(startTime);
-        defenceSessionDTO.setEndTime(endTime);
+        defenceSessionDTO.setStartTime(LocalTime.of(10, 0));
+        defenceSessionDTO.setEndTime(LocalTime.of(10, 30));
 
         mockMvc.perform(post("/api/defence-sessions")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.time.conflict", null, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.time.conflict", null, new Locale(language))));
     }
 
     @Test
@@ -248,19 +252,21 @@ public class DefenceSessionRestControllerIntegrationTest {
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void updateDefenceSession_shouldReturnNotFoundStatus_whenDefenceSessionNotFound() throws Exception {
+    void updateDefenceSession_shouldReturnNotFoundStatus_whenDefenceSessionNotFound(String language) throws Exception {
 
         defenceSessionDTO.setDefenceSessionId(100L);
 
         mockMvc.perform(put("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionDTO.getDefenceSessionId()}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionDTO.getDefenceSessionId()}, new Locale(language))));
 
     }
 
@@ -346,9 +352,10 @@ public class DefenceSessionRestControllerIntegrationTest {
     }
 
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void updateDefenceSession_shouldReturnUnprocessableEntity_whenStartTimeIsGreaterThanEndTime() throws Exception {
+    void updateDefenceSession_shouldReturnUnprocessableEntity_whenStartTimeIsGreaterThanEndTime(String language) throws Exception {
 
         defenceSessionDTO.setDefenceSessionId(1L);
 
@@ -357,31 +364,33 @@ public class DefenceSessionRestControllerIntegrationTest {
 
         mockMvc.perform(put("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, new Locale(language))));
 
     }
 
     @ParameterizedTest
-    @MethodSource("provideLocaleTimesForDefenceSession")
-    void updateDefenceSession_shouldReturnUnprocessableEntity_whenDefenceTimeOverlaps(LocalTime startTime, LocalTime endTime) throws Exception {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void updateDefenceSession_shouldReturnUnprocessableEntity_whenDefenceTimeOverlaps(String language) throws Exception {
 
         defenceSessionDTO.setDefenceSessionId(1L);
 
         defenceSessionDTO.setDefenseDate(LocalDate.of(2024, 12,10));
-        defenceSessionDTO.setStartTime(startTime);
-        defenceSessionDTO.setEndTime(endTime);
+        defenceSessionDTO.setStartTime(LocalTime.of(10, 0));
+        defenceSessionDTO.setEndTime(LocalTime.of(10, 30));
 
         mockMvc.perform(put("/api/defence-sessions")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.time.conflict", null, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.time.conflict", null, new Locale(language))));
     }
 
     @Test
@@ -407,17 +416,20 @@ public class DefenceSessionRestControllerIntegrationTest {
     }
 
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void getById_shouldReturnNotFound_whenDefenceSessionNotFound() throws Exception {
+    void getById_shouldReturnNotFound_whenDefenceSessionNotFound(String language) throws Exception {
 
         long defenceSessionId = 100L;
 
-        mockMvc.perform(get("/api/defence-sessions/" + defenceSessionId))
+        mockMvc.perform(get("/api/defence-sessions/" + defenceSessionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, new Locale(language))));
 
     }
 
@@ -435,17 +447,20 @@ public class DefenceSessionRestControllerIntegrationTest {
     }
 
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void removeById_shouldReturnNotFound_whenDefenceSessionNotFound() throws Exception {
+    void removeById_shouldReturnNotFound_whenDefenceSessionNotFound(String language) throws Exception {
 
         long defenceSessionId = 100L;
 
-        mockMvc.perform(delete("/api/defence-sessions/" + defenceSessionId))
+        mockMvc.perform(delete("/api/defence-sessions/" + defenceSessionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSessionId}, new Locale(language))));
 
     }
 

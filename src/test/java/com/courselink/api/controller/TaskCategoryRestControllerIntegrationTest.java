@@ -57,12 +57,14 @@ public class TaskCategoryRestControllerIntegrationTest {
     @Autowired
     MessageSource messageSource;
     TaskCategoryDTO taskCategoryDTO;
+    List<Locale> locales;
 
     @BeforeEach
     void setUp() {
         taskCategoryDTO = new TaskCategoryDTO();
         taskCategoryDTO.setTaskCategoryName("Test task category name");
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        locales = LanguageConfig.LOCALES;
     }
 
     @Test
@@ -98,23 +100,20 @@ public class TaskCategoryRestControllerIntegrationTest {
 
     @ParameterizedTest
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    @ValueSource(strings = {
-            "Course Work",
-            "Thesis",
-            "Laboratory Work",
-            "Practical Work"
-    })
-    void createTaskCategory_shouldReturnUnprocessableEntity_whenInputContainsExistingTaskCategoryName(String taskCategoryName) throws Exception {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void createTaskCategory_shouldReturnUnprocessableEntity_whenInputContainsExistingTaskCategoryName(String language) throws Exception {
 
-        taskCategoryDTO.setTaskCategoryName(taskCategoryName);
+        taskCategoryDTO.setTaskCategoryName("Course Work");
 
         mockMvc.perform(post("/api/task-categories")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(taskCategoryDTO)))
+                        .content(objectMapper.writeValueAsString(taskCategoryDTO))
+                        .header("Accept-Language", language))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryName}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()}, new Locale(language))));
+
 
     }
 
@@ -141,19 +140,21 @@ public class TaskCategoryRestControllerIntegrationTest {
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void updateTaskCategory_shouldReturnNotFoundStatus_whenTaskCategoryNotFound() throws Exception {
+    void updateTaskCategory_shouldReturnNotFoundStatus_whenTaskCategoryNotFound(String language) throws Exception {
 
         taskCategoryDTO.setTaskCategoryId(100L);
 
         mockMvc.perform(put("/api/task-categories")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(taskCategoryDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryDTO.getTaskCategoryId()}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryDTO.getTaskCategoryId()}, new Locale(language))));
 
     }
 
@@ -166,8 +167,8 @@ public class TaskCategoryRestControllerIntegrationTest {
         taskCategoryDTO.setTaskCategoryName(null);
 
         mockMvc.perform(put("/api/task-categories")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(taskCategoryDTO)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskCategoryDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
@@ -175,20 +176,22 @@ public class TaskCategoryRestControllerIntegrationTest {
 
     }
 
-    @Test
+    @ParameterizedTest
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void updateTaskCategory_shouldReturnUnprocessableEntity_whenInputContainsExistingTaskCategoryName() throws Exception {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void updateTaskCategory_shouldReturnUnprocessableEntity_whenInputContainsExistingTaskCategoryName(String language) throws Exception {
 
         taskCategoryDTO.setTaskCategoryId(1L);
         taskCategoryDTO.setTaskCategoryName("Thesis");
 
         mockMvc.perform(put("/api/task-categories")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(taskCategoryDTO)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskCategoryDTO))
+                        .header("Accept-Language", language))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.already.exists.with.name", new Object[]{taskCategoryDTO.getTaskCategoryName()},new Locale(language))));
 
     }
 
@@ -215,17 +218,20 @@ public class TaskCategoryRestControllerIntegrationTest {
     }
 
 
-    @Test
+    @ParameterizedTest
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void getById_shouldReturnNotFound_whenTaskCategoryNotFound() throws Exception {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void getById_shouldReturnNotFound_whenTaskCategoryNotFound(String language) throws Exception {
 
         long taskCategoryId = 100L;
 
-        mockMvc.perform(get("/api/task-categories/" + taskCategoryId))
+        mockMvc.perform(get("/api/task-categories/" + taskCategoryId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, new Locale(language))));
 
     }
 
@@ -243,17 +249,20 @@ public class TaskCategoryRestControllerIntegrationTest {
     }
 
 
-    @Test
+    @ParameterizedTest
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void removeById_shouldReturnNotFound_whenTaskCategoryNotFound() throws Exception {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void removeById_shouldReturnNotFound_whenTaskCategoryNotFound(String language) throws Exception {
 
         long taskCategoryId = 100L;
 
-        mockMvc.perform(delete("/api/task-categories/" + taskCategoryId))
+        mockMvc.perform(delete("/api/task-categories/" + taskCategoryId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(404))
-                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, Locale.ENGLISH)));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.not.found.with.id", new Object[]{taskCategoryId}, new Locale(language))));
 
     }
 

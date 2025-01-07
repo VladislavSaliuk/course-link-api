@@ -9,6 +9,8 @@ import com.courselink.api.repository.DefenceSessionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -84,15 +86,16 @@ public class DefenceSessionServiceTest {
 
     }
 
-    @Test
-    void createDefenceSession_shouldThrowException_whenStartTimeIsGreaterThanEndTime() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void createDefenceSession_shouldThrowException_whenStartTimeIsGreaterThanEndTime(String language) {
 
         defenceSessionDTO.setStartTime(LocalTime.of(14, 0));
         defenceSessionDTO.setEndTime(LocalTime.of(12, 0));
 
         DefenceSessionException exception = assertThrows(DefenceSessionException.class, () -> defenceSessionService.createDefenceSession(defenceSessionDTO));
 
-        assertEquals(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, new Locale(language)), exception.getMessage());
 
         verify(defenceSessionRepository, never()).save(defenceSession);
 
@@ -114,8 +117,9 @@ public class DefenceSessionServiceTest {
 
     }
 
-    @Test
-    void updateDefenceSession_shouldThrowException_whenStartTimeIsGreaterThanEndTime() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void updateDefenceSession_shouldThrowException_whenStartTimeIsGreaterThanEndTime(String language) {
 
         defenceSessionDTO.setStartTime(LocalTime.of(14, 0));
         defenceSessionDTO.setEndTime(LocalTime.of(12, 0));
@@ -124,20 +128,21 @@ public class DefenceSessionServiceTest {
 
         DefenceSessionException exception = assertThrows(DefenceSessionException.class, () -> defenceSessionService.updateDefenceSession(defenceSessionDTO));
 
-        assertEquals(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.start.time.greater.end.time", null, new Locale(language)), exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSession.getDefenceSessionId());
 
     }
 
-    @Test
-    void updateDefenceSession_shouldThrowException_whenDefenceSessionNotFound() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void updateDefenceSession_shouldThrowException_whenDefenceSessionNotFound(String language) {
 
         when(defenceSessionRepository.findById(defenceSession.getDefenceSessionId())).thenReturn(Optional.empty());
 
         DefenceSessionNotFoundException exception = assertThrows(DefenceSessionNotFoundException.class, () -> defenceSessionService.updateDefenceSession(defenceSessionDTO));
 
-        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSession.getDefenceSessionId()}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSession.getDefenceSessionId()}, new Locale(language)), exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSession.getDefenceSessionId());
         verify(defenceSessionRepository, never()).save(defenceSession);
@@ -174,15 +179,16 @@ public class DefenceSessionServiceTest {
 
     }
 
-    @Test
-    void getById_shouldThrowException_whenInputContainsNotExistingId() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void getById_shouldThrowException_whenInputContainsNotExistingId(String language) {
         long defenceSessionId = 100L;
 
         when(defenceSessionRepository.findById(defenceSessionId)).thenReturn(Optional.empty());
 
         DefenceSessionNotFoundException exception = assertThrows(DefenceSessionNotFoundException.class, () -> defenceSessionService.getById(defenceSessionId));
 
-        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSession.getDefenceSessionId()}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSession.getDefenceSessionId()}, new Locale(language)), exception.getMessage());
 
         verify(defenceSessionRepository).findById(defenceSessionId);
     }
@@ -200,15 +206,16 @@ public class DefenceSessionServiceTest {
         verify(defenceSessionRepository).deleteById(defenceSessionId);
     }
 
-    @Test
-    void removeById_shouldThrowException_whenInputContainsNotExistingId() {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void removeById_shouldThrowException_whenInputContainsNotExistingId(String language) {
         long defenceSessionId = 100L;
 
         when(defenceSessionRepository.existsById(defenceSessionId)).thenReturn(false);
 
         DefenceSessionNotFoundException exception = assertThrows(DefenceSessionNotFoundException.class, () -> defenceSessionService.removeById(defenceSessionId));
 
-        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSession.getDefenceSessionId()}, Locale.ENGLISH), exception.getMessage());
+        assertEquals(messageSource.getMessage("message.defence.session.not.found.with.id", new Object[]{defenceSession.getDefenceSessionId()}, new Locale(language)), exception.getMessage());
         verify(defenceSessionRepository).existsById(defenceSessionId);
         verify(defenceSessionRepository, never()).deleteById(defenceSessionId);
     }
