@@ -19,29 +19,29 @@ import lombok.*;
 @NoArgsConstructor
 public class RegistrationRequestDTO {
 
-    @NotNull(message = "User should contains a username!")
-    @Size(min = 8, message = "Username should have at least 8 characters!")
+    @NotNull(message = "message.user.should.contains.username")
+    @Size(min = 8, message = "message.user.username.min.size")
     private String username;
 
-    @Email(message = "Please provide a valid email address.")
-    @NotNull(message = "User should contain an E-mail!")
+    @Email(message = "message.user.email.invalid")
+    @NotNull(message = "message.user.should.contains.email")
     private String email;
 
-    @NotNull(message = "User should contains a password!")
-    @Size(min = 8, message = "Password should have at least 8 characters!")
+    @NotNull(message = "message.user.should.contains.password")
+    @Size(min = 8, message = "message.user.password.min.size")
     @Pattern(regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}$",
-            message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.")
+            message = "message.user.password.pattern")
     private String password;
 
-    @NotNull(message = "User should contains a firstname!")
+    @NotNull(message = "message.user.should.contains.firstname")
     private String firstname;
 
-    @NotNull(message = "User should contains a lastname!")
+    @NotNull(message = "message.user.should.contains.lastname")
     private String lastname;
 
-    @NotNull(message = "User should contains a role")
+    @NotNull(message = "message.user.should.contains.role")
     @JsonDeserialize(using = RoleDeserializer.class)
-    @AuthorityValidation(anyOf = {Role.STUDENT, Role.TEACHER}, message = "This is not allowed!")
+    @AuthorityValidation(anyOf = {Role.STUDENT, Role.TEACHER}, message = "message.user.role.not.allowed")
     private Role role;
 
 }

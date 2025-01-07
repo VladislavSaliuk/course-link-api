@@ -1,7 +1,10 @@
 package com.courselink.api.exception;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,8 +17,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Slf4j
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
+    private final MessageSource messageSource;
     @ResponseBody
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -24,9 +29,9 @@ public class GlobalExceptionHandler {
         String defaultMessage = e.getBindingResult().getAllErrors().stream()
                 .findFirst()
                 .map(error -> error.getDefaultMessage())
-                .orElse("Validation error");
+                .orElse("message.validation.error");
 
-        return new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), defaultMessage);
+        return new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), messageSource.getMessage(defaultMessage, null, LocaleContextHolder.getLocale()));
     }
     @ResponseBody
     @ResponseStatus(HttpStatus.NOT_FOUND)

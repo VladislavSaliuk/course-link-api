@@ -3,13 +3,11 @@ package com.courselink.api.controller;
 
 import com.courselink.api.dto.DefenceSessionDTO;
 import com.courselink.api.entity.TaskCategory;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,7 +23,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.google.common.cache.LoadingCache;
 import org.testcontainers.utility.DockerImageName;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -110,83 +107,93 @@ public class DefenceSessionRestControllerIntegrationTest {
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void createDefenceSession_shouldReturnUnprocessableEntity_whenTaskCategoryNameIsNull() throws Exception {
+    void createDefenceSession_shouldReturnUnprocessableEntity_whenDescriptionIsNull(String language) throws Exception {
 
         defenceSessionDTO.setDescription(null);
 
         mockMvc.perform(post("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Defence session should contains description!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.should.contains.description", null, new Locale(language))));
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void createDefenceSession_shouldReturnUnprocessableEntity_whenDefenceDateIsNull() throws Exception {
+    void createDefenceSession_shouldReturnUnprocessableEntity_whenDefenceDateIsNull(String language) throws Exception {
 
         defenceSessionDTO.setDefenseDate(null);
 
         mockMvc.perform(post("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language",language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Defence session should contains defence date!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.should.contains.defence.date", null, new Locale(language))));
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void createDefenceSession_shouldReturnUnprocessableEntity_whenStartTimeIsNull() throws Exception {
+    void createDefenceSession_shouldReturnUnprocessableEntity_whenStartTimeIsNull(String language) throws Exception {
 
         defenceSessionDTO.setStartTime(null);
 
         mockMvc.perform(post("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Defence session should contains start time!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.should.contains.start.time", null, new Locale(language))));
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void createDefenceSession_shouldReturnUnprocessableEntity_whenEndTimeIsNull() throws Exception {
+    void createDefenceSession_shouldReturnUnprocessableEntity_whenEndTimeIsNull(String language) throws Exception {
 
         defenceSessionDTO.setEndTime(null);
 
         mockMvc.perform(post("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Defence session should contains end time!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.should.contains.end.time", null, new Locale(language))));
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void createDefenceSession_shouldReturnUnprocessableEntity_whenTaskCategoryIsNull() throws Exception {
+    void createDefenceSession_shouldReturnUnprocessableEntity_whenTaskCategoryIsNull(String language) throws Exception {
 
         defenceSessionDTO.setTaskCategory(null);
 
         mockMvc.perform(post("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Defence session should contains task category!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.should.contains.task.category", null, new Locale(language))));
 
     }
 
@@ -271,83 +278,93 @@ public class DefenceSessionRestControllerIntegrationTest {
     }
 
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void updateDefenceSession_shouldReturnUnprocessableEntity_whenTaskCategoryNameIsNull() throws Exception {
+    void updateDefenceSession_shouldReturnUnprocessableEntity_whenDescriptionIsNull(String language) throws Exception {
 
         defenceSessionDTO.setDescription(null);
 
         mockMvc.perform(put("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Defence session should contains description!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.should.contains.description", null, new Locale(language))));
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void updateDefenceSession_shouldReturnUnprocessableEntity_whenDefenceDateIsNull() throws Exception {
+    void updateDefenceSession_shouldReturnUnprocessableEntity_whenDefenceDateIsNull(String language) throws Exception {
 
         defenceSessionDTO.setDefenseDate(null);
 
         mockMvc.perform(put("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Defence session should contains defence date!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.should.contains.defence.date", null, new Locale(language))));
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void updateDefenceSession_shouldReturnUnprocessableEntity_whenStartTimeIsNull() throws Exception {
+    void updateDefenceSession_shouldReturnUnprocessableEntity_whenStartTimeIsNull(String language) throws Exception {
 
         defenceSessionDTO.setStartTime(null);
 
         mockMvc.perform(put("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Defence session should contains start time!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.should.contains.start.time", null, new Locale(language))));
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void updateDefenceSession_shouldReturnUnprocessableEntity_whenEndTimeIsNull() throws Exception {
+    void updateDefenceSession_shouldReturnUnprocessableEntity_whenEndTimeIsNull(String language) throws Exception {
 
         defenceSessionDTO.setEndTime(null);
 
         mockMvc.perform(put("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Defence session should contains end time!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.should.contains.end.time", null, new Locale(language))));
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void updateDefenceSession_shouldReturnUnprocessableEntity_whenTaskCategoryIsNull() throws Exception {
+    void updateDefenceSession_shouldReturnUnprocessableEntity_whenTaskCategoryIsNull(String language) throws Exception {
 
         defenceSessionDTO.setTaskCategory(null);
 
         mockMvc.perform(put("/api/defence-sessions")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(defenceSessionDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Defence session should contains task category!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.defence.session.should.contains.task.category", null, new Locale(language))));
 
     }
 

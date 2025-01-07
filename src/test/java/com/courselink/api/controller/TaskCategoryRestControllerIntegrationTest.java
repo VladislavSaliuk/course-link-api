@@ -81,19 +81,21 @@ public class TaskCategoryRestControllerIntegrationTest {
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void createTaskCategory_shouldReturnUnprocessableEntity_whenTaskCategoryNameIsNull() throws Exception {
+    void createTaskCategory_shouldReturnUnprocessableEntity_whenTaskCategoryNameIsNull(String language) throws Exception {
 
         taskCategoryDTO.setTaskCategoryName(null);
 
         mockMvc.perform(post("/api/task-categories")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                 .content(objectMapper.writeValueAsString(taskCategoryDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Task category should contains name!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.should.contains.name", null, new Locale(language))));
 
     }
 
@@ -159,20 +161,22 @@ public class TaskCategoryRestControllerIntegrationTest {
     }
 
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
     @WithMockUser(username = "teacher", roles = "TEACHER")
-    void updateTaskCategory_shouldReturnUnprocessableEntity_whenTaskCategoryNameIsNull() throws Exception {
+    void updateTaskCategory_shouldReturnUnprocessableEntity_whenTaskCategoryNameIsNull(String language) throws Exception {
 
         taskCategoryDTO.setTaskCategoryId(1L);
         taskCategoryDTO.setTaskCategoryName(null);
 
         mockMvc.perform(put("/api/task-categories")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(taskCategoryDTO)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.statusCode").value(422))
-                .andExpect(jsonPath("$.message").value("Task category should contains name!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.task.category.should.contains.name", null, new Locale(language))));
 
     }
 

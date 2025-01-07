@@ -14,7 +14,7 @@ public class TaskCategoryDTO {
 
     private long taskCategoryId;
 
-    @NotNull(message = "Task category should contains name!")
+    @NotNull(message = "message.task.category.should.contains.name")
     private String taskCategoryName;
 
     public static TaskCategoryDTO toTaskCategoryDTO(TaskCategory taskCategory) {

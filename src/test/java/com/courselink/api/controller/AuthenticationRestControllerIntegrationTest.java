@@ -107,73 +107,85 @@ public class AuthenticationRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.token").isNotEmpty());
     }
 
-    @Test
-    void register_shouldReturnUnprocessableEntityStatus_whenMissingUsername() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void register_shouldReturnUnprocessableEntityStatus_whenMissingUsername(String language) throws Exception {
 
         registrationRequestDTO.setUsername(null);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", Locale.forLanguageTag(language))
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User should contains a username!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.should.contains.username", null, new Locale(language))));
     }
 
-    @Test
-    void register_shouldReturnUnprocessableEntityStatus_whenMissingEmail() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void register_shouldReturnUnprocessableEntityStatus_whenMissingEmail(String language) throws Exception {
         registrationRequestDTO.setEmail(null);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User should contain an E-mail!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.should.contains.email", null, Locale.forLanguageTag(language))));
     }
 
-    @Test
-    void register_shouldReturnUnprocessableEntityStatus_whenMissingPassword() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void register_shouldReturnUnprocessableEntityStatus_whenMissingPassword(String language) throws Exception {
         registrationRequestDTO.setPassword(null);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User should contains a password!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.should.contains.password", null, new Locale(language))));
     }
 
-    @Test
-    void register_shouldReturnUnprocessableEntityStatus_whenMissingFirstname() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void register_shouldReturnUnprocessableEntityStatus_whenMissingFirstname(String language) throws Exception {
         registrationRequestDTO.setFirstname(null);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User should contains a firstname!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.should.contains.firstname", null, new Locale(language))));
     }
 
-    @Test
-    void register_shouldReturnUnprocessableEntityStatus_whenMissingLastname() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void register_shouldReturnUnprocessableEntityStatus_whenMissingLastname(String language) throws Exception {
         registrationRequestDTO.setLastname(null);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User should contains a lastname!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.should.contains.lastname", null, new Locale(language))));
     }
 
 
-    @Test
-    void register_shouldReturnUnprocessableEntityStatus_whenMissingRole() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void register_shouldReturnUnprocessableEntityStatus_whenMissingRole(String language) throws Exception {
 
         registrationRequestDTO.setRole(null);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User should contains a role"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.should.contains.role", null, new Locale(language))));
     }
 
     @ParameterizedTest
@@ -204,16 +216,18 @@ public class AuthenticationRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.already.exists.with.email", new Object[]{registrationRequestDTO.getEmail()} , new Locale(language))));
     }
 
-    @Test
-    void register_shouldReturnUnprocessableEntityStatus_whenUsernameIsTooShort() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void register_shouldReturnUnprocessableEntityStatus_whenUsernameIsTooShort(String language) throws Exception {
 
         registrationRequestDTO.setUsername("1");
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("Username should have at least 8 characters!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.username.min.size", null, new Locale(language))));
     }
 
     @ParameterizedTest
@@ -232,6 +246,7 @@ public class AuthenticationRestControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", "en")
                         .content(objectMapper.writeValueAsString(registrationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity()).andExpect(jsonPath("$.message", anyOf(
                         is("Password should have at least 8 characters!"),
@@ -257,33 +272,33 @@ public class AuthenticationRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.token").isNotEmpty());
     }
 
-    @Test
-    void authenticate_shouldReturnUnprocessableEntityStatus_whenMissingUsername() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void authenticate_shouldReturnUnprocessableEntityStatus_whenMissingUsername(String language) throws Exception {
 
         authenticationRequestDTO.setUsername(null);
 
         mockMvc.perform(post("/api/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(authenticationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User should contains a username!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.should.contains.username", null, new Locale(language))));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "alice.johnson", "bob.smith", "charlie.brown", "david.williams",
-            "eva.jones", "frank.miller", "grace.wilson", "hannah.moore",
-            "ivy.taylor", "jake.anderson"
-    })
-    void authenticate_shouldReturnUnprocessableEntityStatus_whenMissingPassword() throws Exception {
+    @ValueSource(strings = {"uk", "en", "de", "pl", "ru"})
+    void authenticate_shouldReturnUnprocessableEntityStatus_whenMissingPassword(String language) throws Exception {
 
+        authenticationRequestDTO.setUsername("alice.johnson");
         authenticationRequestDTO.setPassword(null);
 
         mockMvc.perform(post("/api/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Accept-Language", language)
                         .content(objectMapper.writeValueAsString(authenticationRequestDTO)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("User should contains a password!"));
+                .andExpect(jsonPath("$.message").value(messageSource.getMessage("message.user.should.contains.password", null, new Locale(language))));
     }
 
     @ParameterizedTest

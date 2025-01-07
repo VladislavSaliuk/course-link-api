@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationRequestDTO {
 
-    @NotNull(message = "User should contains a username!")
+    @NotNull(message = "message.user.should.contains.username")
     private String username;
-    @NotNull(message = "User should contains a password!")
+    @NotNull(message = "message.user.should.contains.password")
     private String password;
 
 }

@@ -17,17 +17,17 @@ public class BookingSlotDTO {
 
     private long bookingSlotId;
 
-    @NotNull(message = "Booking slot should contains start time!")
+    @NotNull(message = "message.booking.slot.should.contains.start.time")
     private LocalTime startTime;
 
-    @NotNull(message = "Booking slot should contains end time!")
+    @NotNull(message = "message.booking.slot.should.contains.end.time")
     private LocalTime endTime;
 
     private boolean isBooked;
 
     private Long userId;
 
-    @NotNull(message = "Booking slot should contains defence session!")
+    @NotNull(message = "message.booking.slot.should.contains.defence.session")
     private long defenceSessionId;
 
     public static BookingSlotDTO toBookingSlotDTO(BookingSlot bookingSlot) {

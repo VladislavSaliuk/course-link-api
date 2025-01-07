@@ -12,10 +12,10 @@ import lombok.*;
 @NoArgsConstructor
 public class UpdateRoleDTO {
 
-    @NotNull(message = "User should contains userId")
+    @NotNull(message = "message.user.should.contains.userId")
     private long userId;
 
-    @NotNull(message = "User should contains role")
+    @NotNull(message = "message.user.should.contains.role")
     private Role role;
 
 }

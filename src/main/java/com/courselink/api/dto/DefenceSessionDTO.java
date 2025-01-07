@@ -24,19 +24,19 @@ public class DefenceSessionDTO {
 
     private long defenceSessionId;
 
-    @NotNull(message = "Defence session should contains description!")
+    @NotNull(message = "message.defence.session.should.contains.description")
     private String description;
 
-    @NotNull(message = "Defence session should contains defence date!")
+    @NotNull(message = "message.defence.session.should.contains.defence.date")
     private LocalDate defenseDate;
 
-    @NotNull(message = "Defence session should contains start time!")
+    @NotNull(message = "message.defence.session.should.contains.start.time")
     private LocalTime startTime;
 
-    @NotNull(message = "Defence session should contains end time!")
+    @NotNull(message = "message.defence.session.should.contains.end.time")
     private LocalTime endTime;
 
-    @NotNull(message = "Defence session should contains task category!")
+    @NotNull(message = "message.defence.session.should.contains.task.category")
     private TaskCategory taskCategory;
 
     public static DefenceSessionDTO toDefenceSessionDTO(DefenceSession defenceSession) {

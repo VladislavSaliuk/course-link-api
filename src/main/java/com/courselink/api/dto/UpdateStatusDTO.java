@@ -1,8 +1,6 @@
 package com.courselink.api.dto;
 
 import com.courselink.api.entity.Status;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -14,10 +12,10 @@ import lombok.*;
 @NoArgsConstructor
 public class UpdateStatusDTO {
 
-    @NotNull(message = "User should contains userId")
+    @NotNull(message = "message.user.should.contains.userId")
     private long userId;
 
-    @NotNull(message = "User should contains status")
+    @NotNull(message = "message.user.should.contains.status")
     private Status status;
 
 }
