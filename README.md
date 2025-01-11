@@ -43,12 +43,12 @@
    ```bash
    git clone https://github.com/VladislavSaliuk/CourseLink.git
    cd CourseLink
-2. Start Docker containers:
-   ```bash
-   docker-compose up -d
-3. Run the application:
+2. Run the application:
    ```bash
    ./mvnw spring-boot:run
+3. Start Docker containers:
+   ```bash
+   docker-compose up -d   
 4. Access the OpenAPI at:
    ```bash
    localhost:8080/swagger-ui/index.html
